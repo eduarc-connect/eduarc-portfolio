@@ -12,7 +12,7 @@
 --   6. WAF Security Incidents & Threat Logs (public.security_events)
 --   7. IP Blocklist & Defense Engine (public.blocked_ips)
 --   8. Row Level Security (RLS) Policies & Role Grants
---   9. Supabase Storage Bucket ('programs') Configuration
+--   9. Supabase Storage Buckets ('programs' & 'testimonials') Configuration
 -- ============================================================================
 
 -- 0. EXTENSIONS

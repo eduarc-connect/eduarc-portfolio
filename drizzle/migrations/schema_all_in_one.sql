@@ -12,7 +12,7 @@
 --   6. WAF Security Incidents & Threat Logs (public.security_events)
 --   7. IP Blocklist & Defense Engine (public.blocked_ips)
 --   8. Row Level Security (RLS) Policies & Role Grants
---   9. Supabase Storage Bucket ('programs') Configuration
+--   9. Supabase Storage Buckets ('programs' & 'testimonials') Configuration
 -- ============================================================================
 
 -- 0. EXTENSIONS
@@ -282,23 +282,35 @@ GRANT SELECT ON public.blocked_ips TO anon, authenticated;
 GRANT ALL ON public.blocked_ips TO service_role;
 
 -- ----------------------------------------------------------------------------
--- 10. SUPABASE STORAGE (Bucket for program images & brochure assets)
+-- 10. SUPABASE STORAGE (Buckets for programs & testimonials assets)
 -- ----------------------------------------------------------------------------
 DO $$
 BEGIN
-  -- Insert bucket if storage schema exists (standard Supabase managed instances)
+  -- Insert buckets if storage schema exists (standard Supabase managed instances)
   IF EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'storage') THEN
     INSERT INTO storage.buckets (id, name, public)
     VALUES ('programs', 'programs', true)
     ON CONFLICT (id) DO NOTHING;
 
-    -- Storage policy: Allow public read of programs bucket assets
+    INSERT INTO storage.buckets (id, name, public)
+    VALUES ('testimonials', 'testimonials', true)
+    ON CONFLICT (id) DO NOTHING;
+
+    -- Storage policy: Allow public read of programs and testimonials bucket assets
     IF NOT EXISTS (
-      SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Public Access'
+      SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Public Access Programs'
     ) THEN
-      CREATE POLICY "Public Access" ON storage.objects
+      CREATE POLICY "Public Access Programs" ON storage.objects
         FOR SELECT TO public
         USING (bucket_id = 'programs');
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Public Access Testimonials'
+    ) THEN
+      CREATE POLICY "Public Access Testimonials" ON storage.objects
+        FOR SELECT TO public
+        USING (bucket_id = 'testimonials');
     END IF;
   END IF;
 EXCEPTION WHEN OTHERS THEN
