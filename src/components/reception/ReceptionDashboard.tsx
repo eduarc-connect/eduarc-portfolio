@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   Building2,
   CalendarClock,
+  Download,
   Eye,
   FileSpreadsheet,
   GraduationCap,
@@ -31,7 +32,7 @@ import {
 } from "@/lib/enquiry.functions";
 import { enquiriesQuery, receptionStatusQuery } from "@/lib/reception-queries";
 import { type EnquiryRole } from "@/lib/enquiry";
-import { exportStudentsToExcel } from "@/lib/export-excel";
+import { exportStudentsToExcel, exportStudentsToCsv } from "@/lib/export-excel";
 import { BrandLogo } from "@/components/site/BrandLogo";
 import { WhatsAppTemplateModal } from "./WhatsAppTemplateModal";
 import { PasswordPanel } from "@/components/admin/PasswordPanel";
@@ -181,13 +182,37 @@ export function ReceptionDashboard() {
     exportStudentsToExcel(
       toExport,
       isFiltered
-        ? `EDUARC_Enquiries_${effectiveRoleFilter}_${statusFilter}_${new Date().toISOString().split("T")[0]}.xls`
+        ? `EDUARC_Enquiries_${effectiveRoleFilter}_${statusFilter}_${new Date().toISOString().split("T")[0]}.xlsx`
         : undefined,
     );
     toast.success(
       isFiltered
-        ? `Exported ${toExport.length} filtered record(s) to Excel`
-        : `Exported all ${rows.length} enquiry record(s) to Excel`,
+        ? `Exported ${toExport.length} filtered record(s) to Excel (.xlsx)`
+        : `Exported all ${rows.length} enquiry record(s) to Excel (.xlsx)`,
+    );
+  }
+
+  function handleExportCsv() {
+    if (rows.length === 0) {
+      toast.error("No student enquiries available to download.");
+      return;
+    }
+    const toExport =
+      visible.length > 0 &&
+      (effectiveRoleFilter !== "all" || statusFilter !== "all" || query.trim().length > 0)
+        ? visible
+        : rows;
+    const isFiltered = toExport.length !== rows.length;
+    exportStudentsToCsv(
+      toExport,
+      isFiltered
+        ? `EDUARC_Enquiries_${effectiveRoleFilter}_${statusFilter}_${new Date().toISOString().split("T")[0]}.csv`
+        : undefined,
+    );
+    toast.success(
+      isFiltered
+        ? `Exported ${toExport.length} filtered record(s) to CSV`
+        : `Exported all ${rows.length} enquiry record(s) to CSV`,
     );
   }
 
@@ -218,10 +243,21 @@ export function ReceptionDashboard() {
               className="text-xs font-bold"
               onClick={handleExportExcel}
               disabled={rows.length === 0}
-              title="Download enquiries list in formatted Excel file"
+              title="Download enquiries list in modern Microsoft Excel (.xlsx) file"
             >
               <FileSpreadsheet className="h-4 w-4 mr-1.5" />
               <span className="hidden sm:inline">Export Excel</span>
+            </Button>
+            <Button
+              variant="pill-outline"
+              size="sm"
+              className="hidden lg:inline-flex text-xs font-semibold bg-white/80 border-slate-300 text-slate-700 hover:bg-slate-100"
+              onClick={handleExportCsv}
+              disabled={rows.length === 0}
+              title="Download enquiries list in universal CSV format"
+            >
+              <Download className="h-3.5 w-3.5 mr-1.5" />
+              <span>CSV</span>
             </Button>
             <Button
               variant="pill-outline"
