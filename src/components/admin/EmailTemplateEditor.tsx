@@ -153,10 +153,10 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
 
       {/* Sender Configuration */}
       <Panel
-        title="Sender Details"
-        description="Customize the sender display name and from email address."
+        title="Sender & Reply-To Details"
+        description="Configure display name, sender address, and where applicant replies are directed."
       >
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           <TextField
             label="From Name (Brand)"
             value={template.fromName}
@@ -167,7 +167,13 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
             label="From Email Address"
             value={template.fromEmail}
             onChange={(v) => setField("fromEmail", v)}
-            hint="EduArc <onboarding@resend.dev> or verified domain like EduArc <contact@eduarc-connect.in>"
+            hint="EduArc <onboarding@resend.dev> or once verified: EduArc <support@eduarc-connect.in>"
+          />
+          <TextField
+            label="Reply-To Email"
+            value={template.replyTo || "support@eduarc-connect.in"}
+            onChange={(v) => setField("replyTo", v)}
+            hint="Dynadot inbox: support@eduarc-connect.in (where recipient replies arrive)"
           />
         </div>
       </Panel>
@@ -392,3 +398,4 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
     </div>
   );
 }
+

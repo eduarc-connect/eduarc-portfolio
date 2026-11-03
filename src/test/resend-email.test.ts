@@ -91,6 +91,7 @@ describe("Resend Web Mail & Greeting System", () => {
           Authorization: "Bearer re_mock_valid_key",
           "Content-Type": "application/json",
         }),
+        body: expect.stringContaining('"reply_to":"support@eduarc-connect.in"'),
       }),
     );
   });

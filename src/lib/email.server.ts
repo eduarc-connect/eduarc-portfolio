@@ -249,6 +249,11 @@ export async function sendGreetingEmail(
     template.fromEmail ||
     "EduArc <onboarding@resend.dev>";
 
+  const replyToAddress =
+    process.env["RESEND_REPLY_TO"] ||
+    template.replyTo ||
+    "support@eduarc-connect.in";
+
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -259,6 +264,7 @@ export async function sendGreetingEmail(
       body: JSON.stringify({
         from: fromAddress,
         to: [params.to.trim().toLowerCase()],
+        reply_to: replyToAddress,
         subject,
         html,
         text,
@@ -285,6 +291,7 @@ export async function sendGreetingEmail(
           body: JSON.stringify({
             from: "EduArc <onboarding@resend.dev>",
             to: [params.to.trim().toLowerCase()],
+            reply_to: replyToAddress,
             subject,
             html,
             text,
