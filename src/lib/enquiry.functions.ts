@@ -61,6 +61,31 @@ export const submitEnquiry = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const normalizedEmail = data.email.trim().toLowerCase();
+    const normalizedPhone = data.phone.trim();
+    const phoneVariants = [normalizedPhone, `+91${normalizedPhone}`, `91${normalizedPhone}`];
+
+    // 1. Check if duplicate record exists with the same email AND the same phone number
+    const { data: duplicateRows, error: dupCheckErr } = await supabaseAdmin
+      .from("partner_enquiries")
+      .select("id")
+      .ilike("email", normalizedEmail)
+      .in("phone", phoneVariants)
+      .limit(1);
+
+    if (!dupCheckErr && duplicateRows && duplicateRows.length > 0) {
+      throw new Error("A record with this email and phone number already exists.");
+    }
+
+    // 2. Check if this email address has already submitted before (one-time greeting email guarantee)
+    const { data: priorEmailRows } = await supabaseAdmin
+      .from("partner_enquiries")
+      .select("id")
+      .ilike("email", normalizedEmail)
+      .limit(1);
+
+    const isFirstSubmissionForEmail = !priorEmailRows || priorEmailRows.length === 0;
+
     // Compute standard text fallback values for college and education for backward compatibility
     let collegeVal = data.college || "";
     let educationVal = data.education || "";
@@ -144,6 +169,22 @@ export const submitEnquiry = createServerFn({ method: "POST" })
       console.error("submitEnquiry failed", error.message);
       throw new Error("Could not save your details");
     }
+
+    // 3. Trigger greeting email only after successful fresh submission (one-time per email address)
+    if (isFirstSubmissionForEmail) {
+      try {
+        const { sendGreetingEmail } = await import("./email.server");
+        await sendGreetingEmail({
+          to: normalizedEmail,
+          fullName: data.fullName,
+          role: data.role,
+          phone: data.phone,
+        });
+      } catch (emailErr) {
+        console.error("[submitEnquiry] Error triggering greeting email:", emailErr);
+      }
+    }
+
     return { ok: true as const };
   });
 

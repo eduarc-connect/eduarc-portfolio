@@ -137,6 +137,45 @@ export type ProgramSessionReview = z.infer<typeof programSessionReviewSchema>;
 export type ProgramInstitutionDetails = z.infer<typeof programInstitutionDetailsSchema>;
 export type ProgramSessionItem = z.infer<typeof programSessionSchema>;
 
+export const emailTemplateSchema = z
+  .object({
+    enabled: z.boolean().default(true),
+    fromName: str.default("EduArc Guidance Team"),
+    fromEmail: str.default("EduArc <onboarding@resend.dev>"),
+    subject: str.default("Thank you for connecting with EduArc!"),
+    heading: str.default("Welcome to EduArc Guidance"),
+    greeting: str.default("Dear {name},"),
+    body: str.default(
+      "Thank you for reaching out to EduArc! We have successfully received your enquiry regarding {role} guidance.\n\nOur expert academic coordinators are reviewing your details. A dedicated counsellor will connect with you shortly on your provided contact details to discuss personalized roadmaps and next steps for your educational journey.",
+    ),
+    highlightsTitle: str.default("What happens next:"),
+    highlight1: str.default("1-on-1 Academic & Career Consultation"),
+    highlight2: str.default("Course, College & Stream Exploration"),
+    highlight3: str.default("Confidential Guidance from Verified Mentors"),
+    closing: str.default("Together for Student Success,"),
+    signature: str.default(
+      "EduArc — Ambitious to Achievement\nEmail: eduarc.connect@gmail.com | Phone: +91 95357 21089\nWebsite: https://www.eduarc-connect.in",
+    ),
+  })
+  .default({
+    enabled: true,
+    fromName: "EduArc Guidance Team",
+    fromEmail: "EduArc <onboarding@resend.dev>",
+    subject: "Thank you for connecting with EduArc!",
+    heading: "Welcome to EduArc Guidance",
+    greeting: "Dear {name},",
+    body: "Thank you for reaching out to EduArc! We have successfully received your enquiry regarding {role} guidance.\n\nOur expert academic coordinators are reviewing your details. A dedicated counsellor will connect with you shortly on your provided contact details to discuss personalized roadmaps and next steps for your educational journey.",
+    highlightsTitle: "What happens next:",
+    highlight1: "1-on-1 Academic & Career Consultation",
+    highlight2: "Course, College & Stream Exploration",
+    highlight3: "Confidential Guidance from Verified Mentors",
+    closing: "Together for Student Success,",
+    signature:
+      "EduArc — Ambitious to Achievement\nEmail: eduarc.connect@gmail.com | Phone: +91 95357 21089\nWebsite: https://www.eduarc-connect.in",
+  });
+
+export type EmailTemplate = z.infer<typeof emailTemplateSchema>;
+
 export const siteContentSchema = z.object({
   brand: z.object({ tagline: str, footerBlurb: str }),
   contact: z.object({
@@ -501,6 +540,7 @@ export const siteContentSchema = z.object({
   cta: z.object({ title: str, lead: str }),
   mentors: z.array(mentorProfileSchema).default([]),
   conductedPrograms: z.array(programSessionSchema).default([]),
+  emailTemplate: emailTemplateSchema,
 });
 
 export type SiteContent = z.infer<typeof siteContentSchema>;
@@ -1055,6 +1095,22 @@ export const defaultContent: SiteContent = {
     },
   ],
   conductedPrograms: defaultConductedPrograms,
+  emailTemplate: {
+    enabled: true,
+    fromName: "EduArc Guidance Team",
+    fromEmail: "EduArc <onboarding@resend.dev>",
+    subject: "Thank you for connecting with EduArc!",
+    heading: "Welcome to EduArc Guidance",
+    greeting: "Dear {name},",
+    body: "Thank you for reaching out to EduArc! We have successfully received your enquiry regarding {role} guidance.\n\nOur expert academic coordinators are reviewing your details. A dedicated counsellor will connect with you shortly on your provided contact details to discuss personalized roadmaps and next steps for your educational journey.",
+    highlightsTitle: "What happens next:",
+    highlight1: "1-on-1 Academic & Career Consultation",
+    highlight2: "Course, College & Stream Exploration",
+    highlight3: "Confidential Guidance from Verified Mentors",
+    closing: "Together for Student Success,",
+    signature:
+      "EduArc — Ambitious to Achievement\nEmail: eduarc.connect@gmail.com | Phone: +91 95357 21089\nWebsite: https://www.eduarc-connect.in",
+  },
 };
 
 /** Saved data is layered over defaults per section so new fields always have a value. */

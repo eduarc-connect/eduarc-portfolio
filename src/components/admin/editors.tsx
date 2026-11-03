@@ -1612,3 +1612,4 @@ export function EditorStack({ children }: { children: ReactNode }) {
 }
 
 export { MentorsEditor } from "./MentorsEditor";
+export { EmailTemplateEditor } from "./EmailTemplateEditor";

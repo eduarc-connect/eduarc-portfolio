@@ -44,19 +44,24 @@ export const changeAdminPassword = createServerFn({ method: "POST" })
   .validator((d) => changeInput.parse(d))
   .handler(({ data }) => changeOwnPassword("admin", data.currentPassword, data.newPassword));
 
-export const getReceptionAccess = createServerFn({ method: "GET" }).handler(() =>
-  receptionAccessInfo(),
-);
+export const getReceptionAccess = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdmin();
+  return receptionAccessInfo();
+});
 
 export const adminSetReceptionPassword = createServerFn({ method: "POST" })
-  .validator((d) => z.object({ newPassword: z.string().max(200) }).parse(d))
-  .handler(({ data }) => setReceptionPassword(data.newPassword));
+  .validator((d) => passwordInput.parse(d))
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    return setReceptionPassword(data.password);
+  });
+
+export const resetReceptionPassword = adminSetReceptionPassword;
 
 /**
- * Extracts bucket name and relative storage path from a Supabase storage URL.
- * Matches: /storage/v1/object/public/<bucket>/<path>
+ * Parses a Supabase Storage public URL to extract the bucket and path.
  */
-export function parseSupabaseStorageUrl(
+function parseSupabaseStorageUrl(
   url?: string | null,
 ): { bucket: string; path: string } | null {
   if (!url || typeof url !== "string") return null;
@@ -234,4 +239,32 @@ export const deleteTestimonialPhoto = createServerFn({ method: "POST" })
     await requireAdmin();
     await removeImageFromStorageIfSupabase(data.photoUrl);
     return { ok: true as const };
+  });
+
+/**
+ * Admin-only: Send a live test greeting email using the configured Resend API key and template.
+ */
+export const sendTestGreetingEmail = createServerFn({ method: "POST" })
+  .validator((d) =>
+    z
+      .object({
+        to: z.string().trim().email("Enter a valid recipient email"),
+        fullName: z.string().trim().default("EduArc Admin Test"),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    const { sendGreetingEmail } = await import("./email.server");
+    const result = await sendGreetingEmail({
+      to: data.to,
+      fullName: data.fullName,
+      role: "student",
+      phone: "+91 95357 21089",
+    });
+
+    if (!result.success) {
+      throw new Error(result.error || result.reason || "Failed to deliver test email via Resend.");
+    }
+    return { ok: true as const, id: result.id };
   });

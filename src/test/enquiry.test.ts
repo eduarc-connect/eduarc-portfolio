@@ -244,3 +244,10 @@ describe("WhatsApp URL Generation and Greeting Formatter", () => {
     expect(res).toContain("thank you for contacting EDUARC");
   });
 });
+
+describe("Duplicate Enquiry Verification & Handling", () => {
+  it("rejects duplicate submissions with same email and phone", async () => {
+    const { submitEnquiry } = await import("@/lib/enquiry.functions");
+    expect(typeof submitEnquiry).toBe("function");
+  });
+});

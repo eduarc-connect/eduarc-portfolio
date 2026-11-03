@@ -14,6 +14,7 @@ import {
   Loader2,
   LogOut,
   Mail,
+  MailCheck,
   Settings2,
   ShieldAlert,
   Sparkles,
@@ -35,6 +36,7 @@ import {
   AboutEditor,
   ContactEditor,
   EditorStack,
+  EmailTemplateEditor,
   FeaturesEditor,
   GeneralEditor,
   HomeEditor,
@@ -123,6 +125,14 @@ const sections: Section[] = [
     Editor: GeneralEditor,
   },
   {
+    id: "email-template",
+    label: "Email Template",
+    icon: MailCheck,
+    description:
+      "Automated welcome & greeting email sent via Resend upon partner / student enquiry submission.",
+    Editor: EmailTemplateEditor,
+  },
+  {
     id: "reception",
     label: "Reception & Leads",
     icon: UserRoundCheck,
@@ -165,6 +175,7 @@ const sectionLinks: Record<string, string> = {
   impact: "/testimonials",
   contact: "/contact",
   general: "/",
+  "email-template": "/partner",
   reception: "/reception",
 };
 
