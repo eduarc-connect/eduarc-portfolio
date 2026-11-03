@@ -1,4 +1,5 @@
-// Server-only Resend email sending module.
+// Server-only email sending module (supports direct Dynadot SMTP and Resend API).
+import nodemailer from "nodemailer";
 import { defaultContent, type EmailTemplate } from "@/content/eduarc";
 
 export interface SendGreetingParams {
@@ -215,16 +216,63 @@ ${renderedSignature}
 }
 
 /**
- * Sends the automated greeting email to a student or partner via Resend.
+ * Sends email directly through Dynadot's outgoing SMTP mail server (mail.dynadot.com).
+ */
+export async function sendViaDynadotSmtp(options: {
+  from: string;
+  to: string;
+  replyTo: string;
+  subject: string;
+  html: string;
+  text: string;
+}): Promise<SendEmailResult> {
+  const host = process.env["SMTP_HOST"] || "mail.dynadot.com";
+  const port = parseInt(process.env["SMTP_PORT"] || "587", 10);
+  const secure = process.env["SMTP_SECURE"] === "true" || port === 465;
+  const user = process.env["SMTP_USER"] || "support@eduarc-connect.in";
+  const pass = process.env["SMTP_PASS"];
+
+  if (!pass) {
+    return { success: false, error: "SMTP_PASS is not configured in environment variables." };
+  }
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  const info = await transporter.sendMail({
+    from: options.from,
+    to: options.to,
+    replyTo: options.replyTo,
+    subject: options.subject,
+    html: options.html,
+    text: options.text,
+  });
+
+  console.log(`[sendViaDynadotSmtp] Email successfully sent to ${options.to} via Dynadot SMTP (ID: ${info.messageId})`);
+  return { success: true, id: info.messageId };
+}
+
+/**
+ * Sends the automated greeting email to a student or partner.
+ * Uses Dynadot SMTP when SMTP_PASS is configured, or Resend API as fallback.
  */
 export async function sendGreetingEmail(
   params: SendGreetingParams,
   templateOverride?: EmailTemplate,
 ): Promise<SendEmailResult> {
-  const apiKey = process.env["RESEND_API_KEY"];
-  if (!apiKey) {
-    console.warn("[sendGreetingEmail] RESEND_API_KEY is not configured in environment variables.");
-    return { success: false, error: "RESEND_API_KEY is not configured." };
+  const hasSmtp = Boolean(process.env["SMTP_PASS"]);
+  const hasResend = Boolean(process.env["RESEND_API_KEY"]);
+
+  if (!hasSmtp && !hasResend) {
+    console.warn("[sendGreetingEmail] Neither SMTP_PASS nor RESEND_API_KEY is configured.");
+    return { success: false, error: "Email credentials not configured. Please set SMTP_PASS in .env" };
   }
 
   const template = templateOverride || (await getEmailTemplate());
@@ -244,15 +292,52 @@ export async function sendGreetingEmail(
     phone: params.phone || "",
   });
 
+  const replyToAddress =
+    process.env["SMTP_REPLY_TO"] ||
+    process.env["RESEND_REPLY_TO"] ||
+    template.replyTo ||
+    "support@eduarc-connect.in";
+
+  // 1. Prioritize Dynadot SMTP if password is provided
+  if (hasSmtp) {
+    const fromAddress =
+      process.env["SMTP_FROM"] ||
+      template.fromEmail ||
+      "EduArc <support@eduarc-connect.in>";
+
+    try {
+      const smtpRes = await sendViaDynadotSmtp({
+        from: fromAddress,
+        to: params.to.trim().toLowerCase(),
+        replyTo: replyToAddress,
+        subject,
+        html,
+        text,
+      });
+      if (smtpRes.success) {
+        return smtpRes;
+      }
+      console.warn("[sendGreetingEmail] Dynadot SMTP returned failure:", smtpRes.error);
+    } catch (err) {
+      console.error("[sendGreetingEmail] Dynadot SMTP error:", err);
+    }
+
+    if (!hasResend) {
+      return { success: false, error: "Failed to send email via Dynadot SMTP." };
+    }
+    console.log("[sendGreetingEmail] Falling back to Resend API...");
+  }
+
+  // 2. Resend API mode / fallback
+  const apiKey = process.env["RESEND_API_KEY"];
+  if (!apiKey) {
+    return { success: false, error: "RESEND_API_KEY is not configured." };
+  }
+
   const fromAddress =
     process.env["RESEND_FROM_EMAIL"] ||
     template.fromEmail ||
     "EduArc <onboarding@resend.dev>";
-
-  const replyToAddress =
-    process.env["RESEND_REPLY_TO"] ||
-    template.replyTo ||
-    "support@eduarc-connect.in";
 
   try {
     const response = await fetch("https://api.resend.com/emails", {

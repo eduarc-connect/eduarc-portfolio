@@ -1,4 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
+
+const mockSendMail = vi.fn();
+vi.mock("nodemailer", () => ({
+  default: {
+    createTransport: vi.fn(() => ({
+      sendMail: mockSendMail,
+    })),
+  },
+}));
+
 import {
   buildGreetingEmailHtml,
   sendGreetingEmail,
@@ -92,6 +102,35 @@ describe("Resend Web Mail & Greeting System", () => {
           "Content-Type": "application/json",
         }),
         body: expect.stringContaining('"reply_to":"support@eduarc-connect.in"'),
+      }),
+    );
+  });
+
+  it("prioritizes Dynadot SMTP when SMTP_PASS is configured", async () => {
+    vi.stubEnv("SMTP_HOST", "mail.dynadot.com");
+    vi.stubEnv("SMTP_PORT", "587");
+    vi.stubEnv("SMTP_USER", "support@eduarc-connect.in");
+    vi.stubEnv("SMTP_PASS", "secret-dynadot-pass");
+    vi.stubEnv("SMTP_FROM", "EduArc <support@eduarc-connect.in>");
+
+    mockSendMail.mockResolvedValueOnce({ messageId: "<dynadot-msg-1234@mail.dynadot.com>" });
+
+    const res = await sendGreetingEmail(
+      {
+        to: "partner@college.edu",
+        fullName: "Dr. Sharma",
+        role: "institution",
+      },
+      { ...sampleTemplate, enabled: true },
+    );
+
+    expect(res.success).toBe(true);
+    expect(res.id).toBe("<dynadot-msg-1234@mail.dynadot.com>");
+    expect(mockSendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: "EduArc <support@eduarc-connect.in>",
+        to: "partner@college.edu",
+        replyTo: "support@eduarc-connect.in",
       }),
     );
   });
