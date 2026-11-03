@@ -14,6 +14,7 @@ export interface SendEmailResult {
   id?: string;
   error?: string;
   reason?: string;
+  provider?: "dynadot_smtp" | "resend";
 }
 
 /**
@@ -216,7 +217,84 @@ ${renderedSignature}
 }
 
 /**
- * Sends email directly through Dynadot's outgoing SMTP mail server (mail.dynadot.com).
+ * Verifies the live connection and credentials to Dynadot SMTP server.
+ */
+export async function verifySmtpConnection(): Promise<{
+  ok: boolean;
+  message: string;
+  host: string;
+  port: number;
+  user: string;
+}> {
+  const host = process.env["SMTP_HOST"] || "webhost.dynadot.com";
+  const port = parseInt(process.env["SMTP_PORT"] || "587", 10);
+  const secure = process.env["SMTP_SECURE"] === "true" || port === 465;
+  const user = process.env["SMTP_USER"] || "support@eduarc-connect.in";
+  const pass = process.env["SMTP_PASS"];
+
+  if (!pass) {
+    return {
+      ok: false,
+      message: "SMTP_PASS is not configured in .env",
+      host,
+      port,
+      user,
+    };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false },
+    });
+
+    await transporter.verify();
+    return {
+      ok: true,
+      message: "Connected and authenticated successfully with Dynadot SMTP!",
+      host,
+      port,
+      user,
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return {
+      ok: false,
+      message: msg,
+      host,
+      port,
+      user,
+    };
+  }
+}
+
+/**
+ * Returns current email provider diagnostic configuration for the admin panel.
+ */
+export function getEmailDiagnosticInfo() {
+  const hasSmtp = Boolean(process.env["SMTP_PASS"]);
+  const hasResend = Boolean(process.env["RESEND_API_KEY"]);
+
+  return {
+    activeProvider: hasSmtp ? ("dynadot_smtp" as const) : hasResend ? ("resend" as const) : ("none" as const),
+    smtp: {
+      host: process.env["SMTP_HOST"] || "webhost.dynadot.com",
+      port: parseInt(process.env["SMTP_PORT"] || "587", 10),
+      user: process.env["SMTP_USER"] || "support@eduarc-connect.in",
+      isConfigured: hasSmtp,
+    },
+    resend: {
+      fromEmail: process.env["RESEND_FROM_EMAIL"] || "EduArc <onboarding@resend.dev>",
+      isConfigured: hasResend,
+    },
+  };
+}
+
+/**
+ * Sends email directly through Dynadot's outgoing SMTP mail server (webhost.dynadot.com).
  */
 export async function sendViaDynadotSmtp(options: {
   from: string;
@@ -226,7 +304,7 @@ export async function sendViaDynadotSmtp(options: {
   html: string;
   text: string;
 }): Promise<SendEmailResult> {
-  const host = process.env["SMTP_HOST"] || "mail.dynadot.com";
+  const host = process.env["SMTP_HOST"] || "webhost.dynadot.com";
   const port = parseInt(process.env["SMTP_PORT"] || "587", 10);
   const secure = process.env["SMTP_SECURE"] === "true" || port === 465;
   const user = process.env["SMTP_USER"] || "support@eduarc-connect.in";
@@ -256,7 +334,7 @@ export async function sendViaDynadotSmtp(options: {
   });
 
   console.log(`[sendViaDynadotSmtp] Email successfully sent to ${options.to} via Dynadot SMTP (ID: ${info.messageId})`);
-  return { success: true, id: info.messageId };
+  return { success: true, id: info.messageId, provider: "dynadot_smtp" };
 }
 
 /**
@@ -385,7 +463,7 @@ export async function sendGreetingEmail(
         const fallbackData = (await fallbackRes.json()) as { id?: string; message?: string };
         if (fallbackRes.ok && fallbackData.id) {
           console.log(`[sendGreetingEmail] Fallback email sent successfully: ${fallbackData.id}`);
-          return { success: true, id: fallbackData.id };
+          return { success: true, id: fallbackData.id, provider: "resend" };
         }
       }
 
@@ -393,7 +471,7 @@ export async function sendGreetingEmail(
     }
 
     console.log(`[sendGreetingEmail] Greeting email sent successfully to ${params.to} (ID: ${data.id})`);
-    return { success: true, id: data.id };
+    return { success: true, id: data.id, provider: "resend" };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[sendGreetingEmail] Network or server error:", msg);

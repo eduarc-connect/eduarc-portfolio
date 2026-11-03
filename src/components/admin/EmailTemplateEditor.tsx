@@ -1,11 +1,15 @@
 import { useState } from "react";
 import {
+  AlertCircle,
   CheckCircle2,
   ExternalLink,
   Eye,
   Info,
   Mail,
+  RefreshCw,
   Send,
+  Server,
+  ShieldCheck,
   Sparkles,
   ToggleLeft,
   ToggleRight,
@@ -18,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { sendTestGreetingEmail } from "@/lib/admin.functions";
+import { sendTestGreetingEmail, testSmtpConnection } from "@/lib/admin.functions";
 
 export function EmailTemplateEditor({ draft, update }: EditorProps) {
   const template = draft.emailTemplate;
@@ -30,6 +34,29 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
   const sendTestFn = useServerFn(sendTestGreetingEmail);
+  const testSmtpFn = useServerFn(testSmtpConnection);
+  const [isTestingSmtp, setIsTestingSmtp] = useState(false);
+  const [smtpStatus, setSmtpStatus] = useState<{ ok: boolean; message: string } | null>(null);
+
+  async function handleTestSmtp() {
+    setIsTestingSmtp(true);
+    setSmtpStatus(null);
+    try {
+      const res = await testSmtpFn();
+      setSmtpStatus({ ok: res.ok, message: res.message });
+      if (res.ok) {
+        toast.success(res.message);
+      } else {
+        toast.error(`Dynadot SMTP: ${res.message}`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to verify SMTP";
+      setSmtpStatus({ ok: false, message: msg });
+      toast.error(msg);
+    } finally {
+      setIsTestingSmtp(false);
+    }
+  }
 
   async function handleSendTest() {
     if (!testEmail || !testEmail.includes("@")) {
@@ -40,9 +67,10 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
     try {
       const res = await sendTestFn({ data: { to: testEmail, fullName: "EduArc Administrator" } });
       if (res?.ok) {
-        toast.success(`Test email sent successfully via Resend! (ID: ${res.id})`);
+        const providerName = res.provider === "dynadot_smtp" ? "Dynadot SMTP" : "Resend API";
+        toast.success(`Test email sent successfully via ${providerName}! (ID: ${res.id})`);
       } else {
-        toast.error("Failed to send test email. Please check your Resend configuration.");
+        toast.error("Failed to send test email. Please check your email configuration.");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to send test email");
@@ -116,10 +144,98 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
           </Button>
         </div>
 
-        {/* Test Email Dispatcher */}
-        <div className="pt-2 border-t border-hairline/60">
+      {/* Mail Server & Connection Diagnostics Card */}
+      <Panel
+        title="Outgoing Mail Servers & Diagnostics"
+        description="Monitor and verify your active mail servers (Dynadot SMTP & Resend fail-safe network)."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Dynadot SMTP Card */}
+          <div className="rounded-2xl border border-hairline bg-card p-4 sm:p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Server className="h-4 w-4 text-brand-navy" />
+                <span className="text-sm font-bold text-brand-navy">Dynadot SMTP Server</span>
+              </div>
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                webhost.dynadot.com:587
+              </span>
+            </div>
+
+            <div className="text-xs space-y-1 text-muted-foreground bg-slate-50 p-3 rounded-xl border border-slate-200/60 font-mono">
+              <p><strong className="text-foreground font-sans">Host:</strong> webhost.dynadot.com</p>
+              <p><strong className="text-foreground font-sans">Port:</strong> 587 (STARTTLS)</p>
+              <p><strong className="text-foreground font-sans">Username:</strong> support@eduarc-connect.in</p>
+            </div>
+
+            {smtpStatus && (
+              <div
+                className={`p-3 rounded-xl text-xs flex items-start gap-2.5 ${
+                  smtpStatus.ok
+                    ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
+                    : "bg-amber-50 text-amber-950 border border-amber-200"
+                }`}
+              >
+                {smtpStatus.ok ? (
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                )}
+                <div className="space-y-1 w-full">
+                  <p className="font-semibold text-xs">{smtpStatus.ok ? "Connected & Authenticated!" : "Authentication Issue Detected"}</p>
+                  <p className="font-mono text-[11px] break-all bg-white/70 p-1.5 rounded border border-amber-200/50">{smtpStatus.message}</p>
+                  {!smtpStatus.ok && (
+                    <div className="mt-2 text-[11px] text-amber-900 space-y-1 leading-relaxed">
+                      <p className="font-semibold">How to fix in Dynadot:</p>
+                      <p>1. Log into Dynadot &rarr; <strong>My Emails</strong> &rarr; <strong>Sign In</strong> to webmail.</p>
+                      <p>2. Click <strong>Settings (gear icon)</strong> &rarr; enable <strong>Remote Access</strong> (enables SMTP/IMAP).</p>
+                      <p>3. Confirm that the password in <code>.env</code> is the dedicated mailbox password for <code>support@eduarc-connect.in</code>.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <Button
+              type="button"
+              variant="pill-outline"
+              size="sm"
+              onClick={handleTestSmtp}
+              disabled={isTestingSmtp}
+              className="w-full text-xs font-semibold cursor-pointer py-2"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isTestingSmtp ? "animate-spin" : ""}`} />
+              {isTestingSmtp ? "Testing Connection..." : "Check Dynadot SMTP Connection"}
+            </Button>
+          </div>
+
+          {/* Resend High-Reliability Fallback Card */}
+          <div className="rounded-2xl border border-hairline bg-card p-4 sm:p-5 space-y-3 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <span className="text-sm font-bold text-brand-navy">Resend Delivery Network</span>
+                </div>
+                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Active Failover
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Active as a high-reliability fail-safe. If Dynadot SMTP encounters a rate limit, server reboot, or credential error, Resend automatically delivers the greeting email so no enquiries are lost.
+              </p>
+              <div className="text-xs space-y-1 text-muted-foreground bg-slate-50 p-3 rounded-xl border border-slate-200/60 font-mono">
+                <p><strong className="text-foreground font-sans">Failover:</strong> Automatic Zero-Loss</p>
+                <p><strong className="text-foreground font-sans">Reply-To:</strong> support@eduarc-connect.in</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Test Dispatcher */}
+        <div className="pt-4 border-t border-hairline/60">
           <Label className="text-xs font-semibold text-brand-navy uppercase tracking-wider">
-            Send Live Test Email via Resend
+            Send Live Greeting Test Email
           </Label>
           <div className="mt-2 flex flex-col sm:flex-row gap-2 max-w-lg">
             <Input
@@ -138,17 +254,17 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
               className="shrink-0 cursor-pointer text-xs font-bold"
             >
               <Send className="h-3.5 w-3.5 mr-1.5" />
-              {isSendingTest ? "Sending..." : "Send Test"}
+              {isSendingTest ? "Sending..." : "Send Live Test"}
             </Button>
           </div>
-          <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1">
+          <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1.5">
             <Info className="h-3.5 w-3.5 text-brand-navy/60 shrink-0" />
             <span>
-              Resend sending key is active. Testing emails are sent from{" "}
-              <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded">onboarding@resend.dev</code> (or verified domain).
+              Sends a real branded email using Dynadot SMTP (or fallback). Applicant replies arrive in <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded font-mono">support@eduarc-connect.in</code>.
             </span>
           </p>
         </div>
+      </Panel>
       </Panel>
 
       {/* Sender Configuration */}

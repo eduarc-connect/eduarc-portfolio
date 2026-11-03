@@ -242,7 +242,25 @@ export const deleteTestimonialPhoto = createServerFn({ method: "POST" })
   });
 
 /**
- * Admin-only: Send a live test greeting email using the configured Resend API key and template.
+ * Admin-only: Fetch active email provider and configuration status (Dynadot SMTP & Resend).
+ */
+export const getEmailDiagnostics = createServerFn({ method: "GET" }).handler(async () => {
+  await requireAdmin();
+  const { getEmailDiagnosticInfo } = await import("./email.server");
+  return getEmailDiagnosticInfo();
+});
+
+/**
+ * Admin-only: Test live connection and authentication with Dynadot SMTP server.
+ */
+export const testSmtpConnection = createServerFn({ method: "POST" }).handler(async () => {
+  await requireAdmin();
+  const { verifySmtpConnection } = await import("./email.server");
+  return await verifySmtpConnection();
+});
+
+/**
+ * Admin-only: Send a live test greeting email using the configured SMTP or Resend fallback.
  */
 export const sendTestGreetingEmail = createServerFn({ method: "POST" })
   .validator((d) =>
@@ -264,7 +282,7 @@ export const sendTestGreetingEmail = createServerFn({ method: "POST" })
     });
 
     if (!result.success) {
-      throw new Error(result.error || result.reason || "Failed to deliver test email via Resend.");
+      throw new Error(result.error || result.reason || "Failed to deliver test email.");
     }
-    return { ok: true as const, id: result.id };
+    return { ok: true as const, id: result.id, provider: result.provider };
   });
