@@ -242,25 +242,25 @@ export const deleteTestimonialPhoto = createServerFn({ method: "POST" })
   });
 
 /**
- * Admin-only: Fetch active email provider and configuration status (Dynadot SMTP & Resend).
+ * Admin-only: Fetch Gmail SMTP configuration status.
  */
-export const getEmailDiagnostics = createServerFn({ method: "GET" }).handler(async () => {
+export const getGmailDiagnostics = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdmin();
-  const { getEmailDiagnosticInfo } = await import("./email.server");
-  return getEmailDiagnosticInfo();
+  const { getGmailDiagnosticInfo } = await import("./email.server");
+  return getGmailDiagnosticInfo();
 });
 
 /**
- * Admin-only: Test live connection and authentication with Dynadot SMTP server.
+ * Admin-only: Test live connection and authentication with Gmail SMTP server.
  */
-export const testSmtpConnection = createServerFn({ method: "POST" }).handler(async () => {
+export const testGmailConnection = createServerFn({ method: "POST" }).handler(async () => {
   await requireAdmin();
-  const { verifySmtpConnection } = await import("./email.server");
-  return await verifySmtpConnection();
+  const { verifyGmailSmtpConnection } = await import("./email.server");
+  return await verifyGmailSmtpConnection();
 });
 
 /**
- * Admin-only: Send a live test greeting email using the configured SMTP or Resend fallback.
+ * Admin-only: Send a live test greeting email using Gmail SMTP.
  */
 export const sendTestGreetingEmail = createServerFn({ method: "POST" })
   .validator((d) =>
@@ -282,7 +282,7 @@ export const sendTestGreetingEmail = createServerFn({ method: "POST" })
     });
 
     if (!result.success) {
-      throw new Error(result.error || result.reason || "Failed to deliver test email.");
+      throw new Error(result.error || result.reason || "Failed to deliver test email via Gmail SMTP.");
     }
     return { ok: true as const, id: result.id, provider: result.provider };
   });

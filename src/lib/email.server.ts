@@ -1,4 +1,4 @@
-// Server-only email sending module (supports direct Dynadot SMTP and Resend API).
+// Server-only email sending module using Gmail SMTP (via nodemailer).
 import nodemailer from "nodemailer";
 import { defaultContent, type EmailTemplate } from "@/content/eduarc";
 
@@ -14,7 +14,7 @@ export interface SendEmailResult {
   id?: string;
   error?: string;
   reason?: string;
-  provider?: "dynadot_smtp" | "resend";
+  provider?: "gmail_smtp";
 }
 
 /**
@@ -109,45 +109,54 @@ export function buildGreetingEmailHtml(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${renderedSubject}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #FAF9F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1E293B;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #FAF9F5; padding: 32px 16px;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F8FAFC; color: #1E293B;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #F8FAFC; padding: 32px 16px;">
     <tr>
       <td align="center">
         <!-- Main Card -->
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 580px; background-color: #FFFFFF; border-radius: 20px; overflow: hidden; border: 1px solid #E2DBD0; box-shadow: 0 4px 16px rgba(20, 39, 68, 0.06);">
-          <!-- Top Brand Header -->
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+          
+          <!-- Header Banner -->
           <tr>
-            <td style="background-color: #142744; padding: 32px 32px 28px 32px; text-align: left;">
+            <td style="background-color: #142744; padding: 32px; text-align: center;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td>
-                    <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px;">EDUARC</h1>
-                    <p style="margin: 4px 0 0 0; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; color: #E5A83B;">Ambitious to Achievement</p>
+                  <td align="center">
+                    <span style="font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF;">
+                      EDU<span style="color: #0284C7;">ARC</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 8px;">
+                    <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: #94A3B8;">
+                      Ambitious to Achievement
+                    </span>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- Email Content Body -->
+          <!-- Content Body -->
           <tr>
             <td style="padding: 36px 32px 28px 32px;">
-              <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #142744; letter-spacing: -0.3px;">
+              <h1 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 700; color: #142744; line-height: 1.3;">
                 ${renderedHeading}
-              </h2>
+              </h1>
 
-              <p style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #142744;">
+              <p style="margin: 0 0 20px 0; font-size: 16px; font-weight: 600; color: #0284C7;">
                 ${renderedGreeting}
               </p>
 
               ${bodyParagraphs}
 
               <!-- Highlights Box -->
-              <div style="background-color: #F8FAFC; border-radius: 12px; border: 1px solid #E2E8F0; padding: 20px; margin: 24px 0;">
-                <p style="margin: 0 0 12px 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #243B35;">
+              <div style="background-color: #F0F9FF; border-left: 4px solid #0284C7; border-radius: 8px; padding: 20px; margin: 24px 0;">
+                <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; color: #0369A1; text-transform: uppercase; letter-spacing: 0.5px;">
                   ${template.highlightsTitle}
                 </p>
-                <ul style="margin: 0; padding-left: 18px; list-style-type: none;">
+                <ul style="margin: 0; padding-left: 0; list-style-type: none;">
                   ${highlights}
                 </ul>
               </div>
@@ -217,46 +226,46 @@ ${renderedSignature}
 }
 
 /**
- * Verifies the live connection and credentials to Dynadot SMTP server.
+ * Creates a configured nodemailer transporter for Gmail SMTP.
  */
-export async function verifySmtpConnection(): Promise<{
+function createGmailTransporter() {
+  const user = process.env["GMAIL_USER"] || "eduarc.connect@gmail.com";
+  const pass = process.env["GMAIL_APP_PASSWORD"];
+
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user,
+      pass,
+    },
+  });
+}
+
+/**
+ * Verifies live connection and authentication with Gmail SMTP server.
+ */
+export async function verifyGmailSmtpConnection(): Promise<{
   ok: boolean;
   message: string;
-  host: string;
-  port: number;
   user: string;
 }> {
-  const host = process.env["SMTP_HOST"] || "webhost.dynadot.com";
-  const port = parseInt(process.env["SMTP_PORT"] || "587", 10);
-  const secure = process.env["SMTP_SECURE"] === "true" || port === 465;
-  const user = process.env["SMTP_USER"] || "support@eduarc-connect.in";
-  const pass = process.env["SMTP_PASS"];
+  const user = process.env["GMAIL_USER"] || "eduarc.connect@gmail.com";
+  const pass = process.env["GMAIL_APP_PASSWORD"];
 
   if (!pass) {
     return {
       ok: false,
-      message: "SMTP_PASS is not configured in .env",
-      host,
-      port,
+      message: "GMAIL_APP_PASSWORD is not configured in .env. Generate a 16-character App Password from Google Account.",
       user,
     };
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure,
-      auth: { user, pass },
-      tls: { rejectUnauthorized: false },
-    });
-
+    const transporter = createGmailTransporter();
     await transporter.verify();
     return {
       ok: true,
-      message: "Connected and authenticated successfully with Dynadot SMTP!",
-      host,
-      port,
+      message: "Connected and authenticated successfully with Gmail SMTP!",
       user,
     };
   } catch (err) {
@@ -264,93 +273,38 @@ export async function verifySmtpConnection(): Promise<{
     return {
       ok: false,
       message: msg,
-      host,
-      port,
       user,
     };
   }
 }
 
 /**
- * Returns current email provider diagnostic configuration for the admin panel.
+ * Returns current Gmail SMTP configuration status for the admin dashboard.
  */
-export function getEmailDiagnosticInfo() {
-  const hasSmtp = Boolean(process.env["SMTP_PASS"]);
-  const hasResend = Boolean(process.env["RESEND_API_KEY"]);
+export function getGmailDiagnosticInfo() {
+  const user = process.env["GMAIL_USER"] || "eduarc.connect@gmail.com";
+  const hasPassword = Boolean(process.env["GMAIL_APP_PASSWORD"]);
 
   return {
-    activeProvider: hasSmtp ? ("dynadot_smtp" as const) : hasResend ? ("resend" as const) : ("none" as const),
-    smtp: {
-      host: process.env["SMTP_HOST"] || "webhost.dynadot.com",
-      port: parseInt(process.env["SMTP_PORT"] || "587", 10),
-      user: process.env["SMTP_USER"] || "support@eduarc-connect.in",
-      isConfigured: hasSmtp,
-    },
-    resend: {
-      fromEmail: process.env["RESEND_FROM_EMAIL"] || "EduArc <onboarding@resend.dev>",
-      isConfigured: hasResend,
-    },
+    user,
+    isConfigured: hasPassword,
   };
 }
 
 /**
- * Sends email directly through Dynadot's outgoing SMTP mail server (webhost.dynadot.com).
- */
-export async function sendViaDynadotSmtp(options: {
-  from: string;
-  to: string;
-  replyTo: string;
-  subject: string;
-  html: string;
-  text: string;
-}): Promise<SendEmailResult> {
-  const host = process.env["SMTP_HOST"] || "webhost.dynadot.com";
-  const port = parseInt(process.env["SMTP_PORT"] || "587", 10);
-  const secure = process.env["SMTP_SECURE"] === "true" || port === 465;
-  const user = process.env["SMTP_USER"] || "support@eduarc-connect.in";
-  const pass = process.env["SMTP_PASS"];
-
-  if (!pass) {
-    return { success: false, error: "SMTP_PASS is not configured in environment variables." };
-  }
-
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure,
-    auth: { user, pass },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
-
-  const info = await transporter.sendMail({
-    from: options.from,
-    to: options.to,
-    replyTo: options.replyTo,
-    subject: options.subject,
-    html: options.html,
-    text: options.text,
-  });
-
-  console.log(`[sendViaDynadotSmtp] Email successfully sent to ${options.to} via Dynadot SMTP (ID: ${info.messageId})`);
-  return { success: true, id: info.messageId, provider: "dynadot_smtp" };
-}
-
-/**
- * Sends the automated greeting email to a student or partner.
- * Uses Dynadot SMTP when SMTP_PASS is configured, or Resend API as fallback.
+ * Sends the automated greeting email to a student or partner via Gmail SMTP.
  */
 export async function sendGreetingEmail(
   params: SendGreetingParams,
   templateOverride?: EmailTemplate,
 ): Promise<SendEmailResult> {
-  const hasSmtp = Boolean(process.env["SMTP_PASS"]);
-  const hasResend = Boolean(process.env["RESEND_API_KEY"]);
-
-  if (!hasSmtp && !hasResend) {
-    console.warn("[sendGreetingEmail] Neither SMTP_PASS nor RESEND_API_KEY is configured.");
-    return { success: false, error: "Email credentials not configured. Please set SMTP_PASS in .env" };
+  const pass = process.env["GMAIL_APP_PASSWORD"];
+  if (!pass) {
+    console.warn("[sendGreetingEmail] GMAIL_APP_PASSWORD is not configured in environment variables.");
+    return {
+      success: false,
+      error: "GMAIL_APP_PASSWORD is not configured in .env. Please add your 16-character Google App Password.",
+    };
   }
 
   const template = templateOverride || (await getEmailTemplate());
@@ -370,111 +324,32 @@ export async function sendGreetingEmail(
     phone: params.phone || "",
   });
 
-  const replyToAddress =
-    process.env["SMTP_REPLY_TO"] ||
-    process.env["RESEND_REPLY_TO"] ||
-    template.replyTo ||
-    "support@eduarc-connect.in";
-
-  // 1. Prioritize Dynadot SMTP if password is provided
-  if (hasSmtp) {
-    const fromAddress =
-      process.env["SMTP_FROM"] ||
-      template.fromEmail ||
-      "EduArc <support@eduarc-connect.in>";
-
-    try {
-      const smtpRes = await sendViaDynadotSmtp({
-        from: fromAddress,
-        to: params.to.trim().toLowerCase(),
-        replyTo: replyToAddress,
-        subject,
-        html,
-        text,
-      });
-      if (smtpRes.success) {
-        return smtpRes;
-      }
-      console.warn("[sendGreetingEmail] Dynadot SMTP returned failure:", smtpRes.error);
-    } catch (err) {
-      console.error("[sendGreetingEmail] Dynadot SMTP error:", err);
-    }
-
-    if (!hasResend) {
-      return { success: false, error: "Failed to send email via Dynadot SMTP." };
-    }
-    console.log("[sendGreetingEmail] Falling back to Resend API...");
-  }
-
-  // 2. Resend API mode / fallback
-  const apiKey = process.env["RESEND_API_KEY"];
-  if (!apiKey) {
-    return { success: false, error: "RESEND_API_KEY is not configured." };
-  }
-
   const fromAddress =
-    process.env["RESEND_FROM_EMAIL"] ||
+    process.env["GMAIL_FROM"] ||
     template.fromEmail ||
-    "EduArc <onboarding@resend.dev>";
+    "EduArc <eduarc.connect@gmail.com>";
+
+  const replyToAddress =
+    process.env["GMAIL_REPLY_TO"] ||
+    template.replyTo ||
+    "eduarc.connect@gmail.com";
 
   try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: fromAddress,
-        to: [params.to.trim().toLowerCase()],
-        reply_to: replyToAddress,
-        subject,
-        html,
-        text,
-      }),
+    const transporter = createGmailTransporter();
+    const info = await transporter.sendMail({
+      from: fromAddress,
+      to: params.to.trim().toLowerCase(),
+      replyTo: replyToAddress,
+      subject,
+      html,
+      text,
     });
 
-    const data = (await response.json()) as { id?: string; message?: string; name?: string; statusCode?: number };
-
-    if (!response.ok) {
-      console.warn(`[sendGreetingEmail] Resend API error (${response.status}):`, data.message || data);
-
-      // If custom from address failed (e.g. domain not verified), try once with onboarding@resend.dev
-      if (
-        fromAddress !== "EduArc <onboarding@resend.dev>" &&
-        (response.status === 403 || data.message?.toLowerCase().includes("domain"))
-      ) {
-        console.log("[sendGreetingEmail] Retrying with default onboarding@resend.dev fallback...");
-        const fallbackRes = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "EduArc <onboarding@resend.dev>",
-            to: [params.to.trim().toLowerCase()],
-            reply_to: replyToAddress,
-            subject,
-            html,
-            text,
-          }),
-        });
-        const fallbackData = (await fallbackRes.json()) as { id?: string; message?: string };
-        if (fallbackRes.ok && fallbackData.id) {
-          console.log(`[sendGreetingEmail] Fallback email sent successfully: ${fallbackData.id}`);
-          return { success: true, id: fallbackData.id, provider: "resend" };
-        }
-      }
-
-      return { success: false, error: data.message || "Failed to send email via Resend" };
-    }
-
-    console.log(`[sendGreetingEmail] Greeting email sent successfully to ${params.to} (ID: ${data.id})`);
-    return { success: true, id: data.id, provider: "resend" };
+    console.log(`[sendGreetingEmail] Gmail SMTP email sent successfully to ${params.to} (MessageId: ${info.messageId})`);
+    return { success: true, id: info.messageId, provider: "gmail_smtp" };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("[sendGreetingEmail] Network or server error:", msg);
+    console.error("[sendGreetingEmail] Gmail SMTP error:", msg);
     return { success: false, error: msg };
   }
 }

@@ -15,7 +15,7 @@ import {
 } from "@/lib/email.server";
 import { defaultContent } from "@/content/eduarc";
 
-describe("Resend Web Mail & Greeting System", () => {
+describe("Gmail SMTP & Greeting System", () => {
   const sampleTemplate = {
     ...defaultContent.emailTemplate,
     subject: "Welcome to EduArc, {name}!",
@@ -44,13 +44,14 @@ describe("Resend Web Mail & Greeting System", () => {
     expect(html).toContain("Student Career Guidance");
     expect(html).toContain("aarav@example.com");
     expect(html).toContain("Consultation call");
-    expect(html).toContain("EDUARC");
+    expect(html).toContain("EDU");
+    expect(html).toContain("ARC");
     expect(text).toContain("Subject: Welcome to EduArc, Aarav!");
     expect(text).toContain("Best regards,");
   });
 
   it("skips sending if email sending is disabled in template", async () => {
-    vi.stubEnv("RESEND_API_KEY", "re_test_dummy_key");
+    vi.stubEnv("GMAIL_APP_PASSWORD", "mockapppassword123");
 
     const disabledTemplate = { ...sampleTemplate, enabled: false };
     const res = await sendGreetingEmail(
@@ -65,21 +66,28 @@ describe("Resend Web Mail & Greeting System", () => {
     expect(res.reason).toBe("disabled");
   });
 
-  it("calls Resend REST API with correct headers and payload", async () => {
-    vi.stubEnv("RESEND_API_KEY", "re_mock_valid_key");
+  it("returns error if GMAIL_APP_PASSWORD is not configured", async () => {
+    vi.stubEnv("GMAIL_APP_PASSWORD", "");
 
-    const activeTemplate = {
-      ...sampleTemplate,
-      enabled: true,
-      fromEmail: "EduArc <onboarding@resend.dev>",
-    };
+    const res = await sendGreetingEmail(
+      {
+        to: "someone@example.com",
+        fullName: "Test User",
+      },
+      { ...sampleTemplate, enabled: true },
+    );
 
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({ id: "mock-resend-email-id-12345" }),
-    });
-    vi.stubGlobal("fetch", mockFetch);
+    expect(res.success).toBe(false);
+    expect(res.error).toContain("GMAIL_APP_PASSWORD");
+  });
+
+  it("sends email via Gmail SMTP with correct parameters", async () => {
+    vi.stubEnv("GMAIL_USER", "eduarc.connect@gmail.com");
+    vi.stubEnv("GMAIL_APP_PASSWORD", "abcd efgh ijkl mnop");
+    vi.stubEnv("GMAIL_FROM", "EduArc <eduarc.connect@gmail.com>");
+    vi.stubEnv("GMAIL_REPLY_TO", "eduarc.connect@gmail.com");
+
+    mockSendMail.mockResolvedValueOnce({ messageId: "<gmail-msg-12345@gmail.com>" });
 
     const res = await sendGreetingEmail(
       {
@@ -88,49 +96,18 @@ describe("Resend Web Mail & Greeting System", () => {
         role: "student",
         phone: "9988776655",
       },
-      activeTemplate,
-    );
-
-    expect(res.success).toBe(true);
-    expect(res.id).toBe("mock-resend-email-id-12345");
-    expect(mockFetch).toHaveBeenCalledWith(
-      "https://api.resend.com/emails",
-      expect.objectContaining({
-        method: "POST",
-        headers: expect.objectContaining({
-          Authorization: "Bearer re_mock_valid_key",
-          "Content-Type": "application/json",
-        }),
-        body: expect.stringContaining('"reply_to":"support@eduarc-connect.in"'),
-      }),
-    );
-  });
-
-  it("prioritizes Dynadot SMTP when SMTP_PASS is configured", async () => {
-    vi.stubEnv("SMTP_HOST", "mail.dynadot.com");
-    vi.stubEnv("SMTP_PORT", "587");
-    vi.stubEnv("SMTP_USER", "support@eduarc-connect.in");
-    vi.stubEnv("SMTP_PASS", "secret-dynadot-pass");
-    vi.stubEnv("SMTP_FROM", "EduArc <support@eduarc-connect.in>");
-
-    mockSendMail.mockResolvedValueOnce({ messageId: "<dynadot-msg-1234@mail.dynadot.com>" });
-
-    const res = await sendGreetingEmail(
-      {
-        to: "partner@college.edu",
-        fullName: "Dr. Sharma",
-        role: "institution",
-      },
       { ...sampleTemplate, enabled: true },
     );
 
     expect(res.success).toBe(true);
-    expect(res.id).toBe("<dynadot-msg-1234@mail.dynadot.com>");
+    expect(res.id).toBe("<gmail-msg-12345@gmail.com>");
+    expect(res.provider).toBe("gmail_smtp");
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: "EduArc <support@eduarc-connect.in>",
-        to: "partner@college.edu",
-        replyTo: "support@eduarc-connect.in",
+        from: "EduArc <eduarc.connect@gmail.com>",
+        to: "student@example.com",
+        replyTo: "eduarc.connect@gmail.com",
+        subject: "Welcome to EduArc, Rohan!",
       }),
     );
   });

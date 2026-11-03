@@ -5,10 +5,10 @@ import {
   ExternalLink,
   Eye,
   Info,
+  Key,
   Mail,
   RefreshCw,
   Send,
-  Server,
   ShieldCheck,
   Sparkles,
   ToggleLeft,
@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { sendTestGreetingEmail, testSmtpConnection } from "@/lib/admin.functions";
+import { sendTestGreetingEmail, testGmailConnection } from "@/lib/admin.functions";
 
 export function EmailTemplateEditor({ draft, update }: EditorProps) {
   const template = draft.emailTemplate;
@@ -34,27 +34,27 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
   const sendTestFn = useServerFn(sendTestGreetingEmail);
-  const testSmtpFn = useServerFn(testSmtpConnection);
-  const [isTestingSmtp, setIsTestingSmtp] = useState(false);
-  const [smtpStatus, setSmtpStatus] = useState<{ ok: boolean; message: string } | null>(null);
+  const testGmailFn = useServerFn(testGmailConnection);
+  const [isTestingGmail, setIsTestingGmail] = useState(false);
+  const [gmailStatus, setGmailStatus] = useState<{ ok: boolean; message: string } | null>(null);
 
-  async function handleTestSmtp() {
-    setIsTestingSmtp(true);
-    setSmtpStatus(null);
+  async function handleTestGmail() {
+    setIsTestingGmail(true);
+    setGmailStatus(null);
     try {
-      const res = await testSmtpFn();
-      setSmtpStatus({ ok: res.ok, message: res.message });
+      const res = await testGmailFn();
+      setGmailStatus({ ok: res.ok, message: res.message });
       if (res.ok) {
         toast.success(res.message);
       } else {
-        toast.error(`Dynadot SMTP: ${res.message}`);
+        toast.error(`Gmail SMTP: ${res.message}`);
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to verify SMTP";
-      setSmtpStatus({ ok: false, message: msg });
+      const msg = err instanceof Error ? err.message : "Failed to verify Gmail SMTP";
+      setGmailStatus({ ok: false, message: msg });
       toast.error(msg);
     } finally {
-      setIsTestingSmtp(false);
+      setIsTestingGmail(false);
     }
   }
 
@@ -67,10 +67,9 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
     try {
       const res = await sendTestFn({ data: { to: testEmail, fullName: "EduArc Administrator" } });
       if (res?.ok) {
-        const providerName = res.provider === "dynadot_smtp" ? "Dynadot SMTP" : "Resend API";
-        toast.success(`Test email sent successfully via ${providerName}! (ID: ${res.id})`);
+        toast.success(`Test email sent successfully via Gmail SMTP! (ID: ${res.id})`);
       } else {
-        toast.error("Failed to send test email. Please check your email configuration.");
+        toast.error("Failed to send test email. Please check your Gmail SMTP configuration.");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to send test email");
@@ -98,8 +97,8 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
     <div className="space-y-8">
       {/* Overview & Live Test Card */}
       <Panel
-        title="Automated Greeting Email (Resend)"
-        description="EduArc automatically sends a one-time welcome and confirmation email to students and partners when they submit the guidance form on /partner."
+        title="Automated Greeting Email (Gmail SMTP)"
+        description="EduArc automatically sends a one-time welcome and confirmation email from your Gmail account when visitors submit the guidance form on /partner."
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-brand-navy/5 border border-brand-navy/10 p-4 sm:p-5">
           <div className="space-y-1">
@@ -144,98 +143,85 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
           </Button>
         </div>
 
-      {/* Mail Server & Connection Diagnostics Card */}
-      <Panel
-        title="Outgoing Mail Servers & Diagnostics"
-        description="Monitor and verify your active mail servers (Dynadot SMTP & Resend fail-safe network)."
-      >
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Dynadot SMTP Card */}
-          <div className="rounded-2xl border border-hairline bg-card p-4 sm:p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Server className="h-4 w-4 text-brand-navy" />
-                <span className="text-sm font-bold text-brand-navy">Dynadot SMTP Server</span>
-              </div>
-              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                webhost.dynadot.com:587
-              </span>
+        {/* Gmail SMTP Server & Connection Diagnostics Card */}
+        <div className="mt-4 rounded-2xl border border-hairline bg-card p-4 sm:p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-red-500" />
+              <span className="text-sm font-bold text-brand-navy">Google Gmail SMTP Service</span>
             </div>
+            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+              smtp.gmail.com (SSL Port 465)
+            </span>
+          </div>
 
-            <div className="text-xs space-y-1 text-muted-foreground bg-slate-50 p-3 rounded-xl border border-slate-200/60 font-mono">
-              <p><strong className="text-foreground font-sans">Host:</strong> webhost.dynadot.com</p>
-              <p><strong className="text-foreground font-sans">Port:</strong> 587 (STARTTLS)</p>
-              <p><strong className="text-foreground font-sans">Username:</strong> support@eduarc-connect.in</p>
+          <div className="text-xs space-y-1.5 text-muted-foreground bg-slate-50 p-3.5 rounded-xl border border-slate-200/60 font-mono">
+            <p><strong className="text-foreground font-sans">Sender Account:</strong> eduarc.connect@gmail.com</p>
+            <p><strong className="text-foreground font-sans">Authentication:</strong> Google 16-character App Password (in .env: GMAIL_APP_PASSWORD)</p>
+          </div>
+
+          {/* App Password Setup Instructions */}
+          <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/60 text-xs text-amber-950 space-y-1.5 leading-relaxed">
+            <div className="flex items-center gap-1.5 font-semibold text-amber-900">
+              <Key className="h-3.5 w-3.5 text-amber-600" />
+              <span>How to generate a Google App Password:</span>
             </div>
+            <ol className="list-decimal pl-4 space-y-1 text-[12px] text-amber-900/90">
+              <li>
+                Open{" "}
+                <a
+                  href="https://myaccount.google.com/apppasswords"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold underline inline-flex items-center gap-0.5 text-brand-navy"
+                >
+                  Google Account App Passwords <ExternalLink className="h-3 w-3" />
+                </a>{" "}
+                (ensure 2-Step Verification is turned ON).
+              </li>
+              <li>Enter App Name: <strong>EduArc Website</strong>, then click <strong>Create</strong>.</li>
+              <li>Copy the generated 16-character code (e.g. <code>abcd efgh ijkl mnop</code>).</li>
+              <li>Paste it into your project <code>.env</code> file under <code>GMAIL_APP_PASSWORD=your16charcode</code>.</li>
+            </ol>
+          </div>
 
-            {smtpStatus && (
-              <div
-                className={`p-3 rounded-xl text-xs flex items-start gap-2.5 ${
-                  smtpStatus.ok
-                    ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
-                    : "bg-amber-50 text-amber-950 border border-amber-200"
-                }`}
-              >
-                {smtpStatus.ok ? (
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                ) : (
-                  <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-                )}
-                <div className="space-y-1 w-full">
-                  <p className="font-semibold text-xs">{smtpStatus.ok ? "Connected & Authenticated!" : "Authentication Issue Detected"}</p>
-                  <p className="font-mono text-[11px] break-all bg-white/70 p-1.5 rounded border border-amber-200/50">{smtpStatus.message}</p>
-                  {!smtpStatus.ok && (
-                    <div className="mt-2 text-[11px] text-amber-900 space-y-1 leading-relaxed">
-                      <p className="font-semibold">How to fix in Dynadot:</p>
-                      <p>1. Log into Dynadot &rarr; <strong>My Emails</strong> &rarr; <strong>Sign In</strong> to webmail.</p>
-                      <p>2. Click <strong>Settings (gear icon)</strong> &rarr; enable <strong>Remote Access</strong> (enables SMTP/IMAP).</p>
-                      <p>3. Confirm that the password in <code>.env</code> is the dedicated mailbox password for <code>support@eduarc-connect.in</code>.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <Button
-              type="button"
-              variant="pill-outline"
-              size="sm"
-              onClick={handleTestSmtp}
-              disabled={isTestingSmtp}
-              className="w-full text-xs font-semibold cursor-pointer py-2"
+          {gmailStatus && (
+            <div
+              className={`p-3.5 rounded-xl text-xs flex items-start gap-2.5 ${
+                gmailStatus.ok
+                  ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
+                  : "bg-red-50 text-red-950 border border-red-200"
+              }`}
             >
-              <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isTestingSmtp ? "animate-spin" : ""}`} />
-              {isTestingSmtp ? "Testing Connection..." : "Check Dynadot SMTP Connection"}
-            </Button>
-          </div>
-
-          {/* Resend High-Reliability Fallback Card */}
-          <div className="rounded-2xl border border-hairline bg-card p-4 sm:p-5 space-y-3 flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                  <span className="text-sm font-bold text-brand-navy">Resend Delivery Network</span>
-                </div>
-                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  Active Failover
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Active as a high-reliability fail-safe. If Dynadot SMTP encounters a rate limit, server reboot, or credential error, Resend automatically delivers the greeting email so no enquiries are lost.
-              </p>
-              <div className="text-xs space-y-1 text-muted-foreground bg-slate-50 p-3 rounded-xl border border-slate-200/60 font-mono">
-                <p><strong className="text-foreground font-sans">Failover:</strong> Automatic Zero-Loss</p>
-                <p><strong className="text-foreground font-sans">Reply-To:</strong> support@eduarc-connect.in</p>
+              {gmailStatus.ok ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+              )}
+              <div className="space-y-1 w-full">
+                <p className="font-semibold text-xs">{gmailStatus.ok ? "Connected & Authenticated!" : "Gmail SMTP Check"}</p>
+                <p className="font-mono text-[11px] break-all bg-white/70 p-1.5 rounded border border-red-200/50">{gmailStatus.message}</p>
               </div>
             </div>
-          </div>
+          )}
+
+          <Button
+            type="button"
+            variant="pill-outline"
+            size="sm"
+            onClick={handleTestGmail}
+            disabled={isTestingGmail}
+            className="w-full text-xs font-semibold cursor-pointer py-2"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isTestingGmail ? "animate-spin" : ""}`} />
+            {isTestingGmail ? "Testing Gmail Connection..." : "Check Gmail SMTP Connection"}
+          </Button>
         </div>
 
         {/* Live Test Dispatcher */}
         <div className="pt-4 border-t border-hairline/60">
           <Label className="text-xs font-semibold text-brand-navy uppercase tracking-wider">
-            Send Live Greeting Test Email
+            Send Live Test Email via Gmail
           </Label>
           <div className="mt-2 flex flex-col sm:flex-row gap-2 max-w-lg">
             <Input
@@ -254,17 +240,16 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
               className="shrink-0 cursor-pointer text-xs font-bold"
             >
               <Send className="h-3.5 w-3.5 mr-1.5" />
-              {isSendingTest ? "Sending..." : "Send Live Test"}
+              {isSendingTest ? "Sending..." : "Send Test via Gmail"}
             </Button>
           </div>
           <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1.5">
             <Info className="h-3.5 w-3.5 text-brand-navy/60 shrink-0" />
             <span>
-              Sends a real branded email using Dynadot SMTP (or fallback). Applicant replies arrive in <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded font-mono">support@eduarc-connect.in</code>.
+              Sends a real branded greeting email using your official Gmail account (<code>eduarc.connect@gmail.com</code>).
             </span>
           </p>
         </div>
-      </Panel>
       </Panel>
 
       {/* Sender Configuration */}
@@ -277,19 +262,19 @@ export function EmailTemplateEditor({ draft, update }: EditorProps) {
             label="From Name (Brand)"
             value={template.fromName}
             onChange={(v) => setField("fromName", v)}
-            hint="Displayed in inbox (e.g. EduArc Guidance Team)"
+            hint="Displayed in recipient inbox (e.g. EduArc Guidance Team)"
           />
           <TextField
             label="From Email Address"
             value={template.fromEmail}
             onChange={(v) => setField("fromEmail", v)}
-            hint="EduArc <onboarding@resend.dev> or once verified: EduArc <support@eduarc-connect.in>"
+            hint="EduArc <eduarc.connect@gmail.com>"
           />
           <TextField
             label="Reply-To Email"
-            value={template.replyTo || "support@eduarc-connect.in"}
+            value={template.replyTo || "eduarc.connect@gmail.com"}
             onChange={(v) => setField("replyTo", v)}
-            hint="Dynadot inbox: support@eduarc-connect.in (where recipient replies arrive)"
+            hint="Recipient replies arrive at eduarc.connect@gmail.com"
           />
         </div>
       </Panel>

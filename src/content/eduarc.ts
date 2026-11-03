@@ -141,8 +141,8 @@ export const emailTemplateSchema = z
   .object({
     enabled: z.boolean().default(true),
     fromName: str.default("EduArc Guidance Team"),
-    fromEmail: str.default("EduArc <support@eduarc-connect.in>"),
-    replyTo: str.default("support@eduarc-connect.in"),
+    fromEmail: str.default("EduArc <eduarc.connect@gmail.com>"),
+    replyTo: str.default("eduarc.connect@gmail.com"),
     subject: str.default("Thank you for connecting with EduArc!"),
     heading: str.default("Welcome to EduArc Guidance"),
     greeting: str.default("Dear {name},"),
@@ -161,8 +161,8 @@ export const emailTemplateSchema = z
   .default({
     enabled: true,
     fromName: "EduArc Guidance Team",
-    fromEmail: "EduArc <support@eduarc-connect.in>",
-    replyTo: "support@eduarc-connect.in",
+    fromEmail: "EduArc <eduarc.connect@gmail.com>",
+    replyTo: "eduarc.connect@gmail.com",
     subject: "Thank you for connecting with EduArc!",
     heading: "Welcome to EduArc Guidance",
     greeting: "Dear {name},",
@@ -1100,8 +1100,8 @@ export const defaultContent: SiteContent = {
   emailTemplate: {
     enabled: true,
     fromName: "EduArc Guidance Team",
-    fromEmail: "EduArc <support@eduarc-connect.in>",
-    replyTo: "support@eduarc-connect.in",
+    fromEmail: "EduArc <eduarc.connect@gmail.com>",
+    replyTo: "eduarc.connect@gmail.com",
     subject: "Thank you for connecting with EduArc!",
     heading: "Welcome to EduArc Guidance",
     greeting: "Dear {name},",
