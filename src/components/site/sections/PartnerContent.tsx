@@ -7,7 +7,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import studentJourneyBg from "@/assets/contact-guidance-bg.png";
+import studentJourneyBg from "@/assets/Student’s Path to a Bright Future.png";
 import { PartnerForm } from "@/components/site/PartnerForm";
 import { useSiteContent } from "@/lib/site-content";
 
@@ -95,7 +95,7 @@ export function PartnerContent() {
                   width={682}
                   height={1024}
                   loading="lazy"
-                  className="w-full h-[280px] sm:h-[350px] md:h-[390px] object-cover object-[10%_80%] rounded-xl block mx-auto"
+                  className="w-full h-[280px] sm:h-[350px] md:h-[390px] object-cover object-[center_68%] rounded-xl block mx-auto"
                 />
               </div>
             </div>

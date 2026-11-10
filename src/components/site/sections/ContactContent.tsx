@@ -186,20 +186,23 @@ export function ContactContent() {
               href={socials.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-[#D62976]/40 transition-all flex items-center justify-between group"
+              className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-[#D62976]/40 transition-all flex items-center justify-between group overflow-hidden min-w-0"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FA7E1E] via-[#D62976] to-[#962FBF] text-white shadow-2xs">
-                  <Instagram className="w-5 h-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-[#FA7E1E] via-[#D62976] to-[#962FBF] text-white shadow-2xs shrink-0">
+                  <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">Instagram</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">Instagram</h4>
+                  <p
+                    className="text-[11px] text-slate-500 font-medium truncate block"
+                    title={socials.instagramHandle}
+                  >
                     {socials.instagramHandle}
                   </p>
                 </div>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#D62976] group-hover:translate-x-0.5 transition-all ml-1 shrink-0" />
+              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#D62976] group-hover:translate-x-0.5 transition-all ml-1.5 shrink-0" />
             </a>
 
             {/* Facebook */}
@@ -207,18 +210,23 @@ export function ContactContent() {
               href={socials.facebookUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-[#1877F2]/40 transition-all flex items-center justify-between group"
+              className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-[#1877F2]/40 transition-all flex items-center justify-between group overflow-hidden min-w-0"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#1877F2] text-white shadow-2xs">
-                  <Facebook className="w-5 h-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1877F2] text-white shadow-2xs shrink-0">
+                  <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">Facebook</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">{socials.facebookHandle}</p>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">Facebook</h4>
+                  <p
+                    className="text-[11px] text-slate-500 font-medium truncate block"
+                    title={socials.facebookHandle}
+                  >
+                    {socials.facebookHandle}
+                  </p>
                 </div>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#1877F2] group-hover:translate-x-0.5 transition-all ml-1 shrink-0" />
+              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#1877F2] group-hover:translate-x-0.5 transition-all ml-1.5 shrink-0" />
             </a>
 
             {/* X (Twitter) */}
@@ -226,18 +234,23 @@ export function ContactContent() {
               href={socials.twitterUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-black/40 transition-all flex items-center justify-between group"
+              className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-black/40 transition-all flex items-center justify-between group overflow-hidden min-w-0"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-black text-white shadow-2xs">
-                  <XLogo className="w-4 h-4" />
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-black text-white shadow-2xs shrink-0">
+                  <XLogo className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">X (Twitter)</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">{socials.twitterHandle}</p>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">X (Twitter)</h4>
+                  <p
+                    className="text-[11px] text-slate-500 font-medium truncate block"
+                    title={socials.twitterHandle}
+                  >
+                    {socials.twitterHandle}
+                  </p>
                 </div>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-black group-hover:translate-x-0.5 transition-all ml-1 shrink-0" />
+              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-black group-hover:translate-x-0.5 transition-all ml-1.5 shrink-0" />
             </a>
 
             {/* LinkedIn */}
@@ -245,18 +258,23 @@ export function ContactContent() {
               href={socials.linkedinUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-[#0A66C2]/40 transition-all flex items-center justify-between group"
+              className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-[#0A66C2]/40 transition-all flex items-center justify-between group overflow-hidden min-w-0"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#0A66C2] text-white shadow-2xs">
-                  <Linkedin className="w-5 h-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#0A66C2] text-white shadow-2xs shrink-0">
+                  <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">LinkedIn</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">{socials.linkedinHandle}</p>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">LinkedIn</h4>
+                  <p
+                    className="text-[11px] text-slate-500 font-medium truncate block"
+                    title={socials.linkedinHandle}
+                  >
+                    {socials.linkedinHandle}
+                  </p>
                 </div>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#0A66C2] group-hover:translate-x-0.5 transition-all ml-1 shrink-0" />
+              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#0A66C2] group-hover:translate-x-0.5 transition-all ml-1.5 shrink-0" />
             </a>
 
             {/* YouTube */}
@@ -264,18 +282,23 @@ export function ContactContent() {
               href={socials.youtubeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-[#FF0000]/40 transition-all flex items-center justify-between group"
+              className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-[#FF0000]/40 transition-all flex items-center justify-between group overflow-hidden min-w-0"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#FF0000] text-white shadow-2xs">
-                  <Youtube className="w-5 h-5" />
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FF0000] text-white shadow-2xs shrink-0">
+                  <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900">YouTube</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">{socials.youtubeHandle}</p>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">YouTube</h4>
+                  <p
+                    className="text-[11px] text-slate-500 font-medium truncate block"
+                    title={socials.youtubeHandle}
+                  >
+                    {socials.youtubeHandle}
+                  </p>
                 </div>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#FF0000] group-hover:translate-x-0.5 transition-all ml-1 shrink-0" />
+              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#FF0000] group-hover:translate-x-0.5 transition-all ml-1.5 shrink-0" />
             </a>
           </div>
 
