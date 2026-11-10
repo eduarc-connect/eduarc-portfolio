@@ -12,12 +12,12 @@ export const Route = createFileRoute("/contact")({
       {
         name: "description",
         content:
-          "Have questions about career guidance or institutional partnerships? Reach out to EDUARC via direct call (+91 98765 43210), email, WhatsApp, or visit our Bengaluru campus.",
+          "Have questions about career guidance or institutional partnerships? Reach out to EDUARC via direct call (+91 95357 21089), email (eduarc.connect@gmail.com), WhatsApp, or visit our Bengaluru campus.",
       },
       {
         name: "keywords",
         content:
-          "contact EDUARC, career counsellor Bangalore phone, student counselling WhatsApp, career guidance office Bengaluru, partnerships@eduarc.in, Karnataka education support",
+          "contact EDUARC, career counsellor Bangalore phone, student counselling WhatsApp, career guidance office Bengaluru, eduarc.connect@gmail.com, Karnataka education support",
       },
       { property: "og:title", content: "Contact EDUARC — Multiple Ways to Reach Us" },
       {

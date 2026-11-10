@@ -26,9 +26,9 @@ function getPublicSupabaseClient(url: string, key: string): SupabaseClient<Datab
 
 // Public read of the editable site content (anon SELECT policy only).
 export const getSiteContent = createServerFn({ method: "GET" }).handler(async () => {
-  const url = process.env["SUPABASE_URL"] || "https://lionurqqysgonxrpzovv.supabase.co";
+  const url = process.env["SUPABASE_URL"] || "https://bxdibrixivozxipefylz.supabase.co";
   const key =
-    process.env["SUPABASE_PUBLISHABLE_KEY"] || "sb_publishable_a4Y9SoiVOegyPtFzoLG4lw_wcd39ojW";
+    process.env["SUPABASE_PUBLISHABLE_KEY"] || "sb_publishable_4SSpwpxYs41goOAmkVlzdg_Z4sTOlQ9";
   if (!url || !key) return defaultContent;
 
   try {

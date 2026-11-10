@@ -555,9 +555,9 @@ export const defaultContent: SiteContent = {
     footerBlurb: "Career guidance and education support for schools and colleges.",
   },
   contact: {
-    email: "partnerships@eduarc.in",
-    phone: "+91 98765 43210",
-    website: "www.eduarc.in",
+    email: "eduarc.connect@gmail.com",
+    phone: "+91 95357 21089",
+    website: "www.eduarc-connect.in",
     phoneHours: "Mon - Fri, 9:00 AM - 6:00 PM (IST)",
     emailNote: "We reply within 24 hours",
     location: "Bengaluru, Karnataka, India",

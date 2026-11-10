@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ComponentType } from "react";
+import { useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -190,6 +191,7 @@ function clean(c: SiteContent): SiteContent {
 export function AdminDashboard() {
   const saved = useSiteContent();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const save = useServerFn(saveSiteContent);
   const logout = useServerFn(adminLogout);
 
@@ -220,6 +222,8 @@ export function AdminDashboard() {
     try {
       await save({ data: parsed.data });
       queryClient.setQueryData(siteContentQuery.queryKey, parsed.data);
+      await queryClient.invalidateQueries({ queryKey: siteContentQuery.queryKey });
+      await router.invalidate();
       setDraft(parsed.data);
       toast.success("Changes published live to the EDUARC website");
     } catch {

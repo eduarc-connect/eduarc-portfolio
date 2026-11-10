@@ -53,8 +53,8 @@ function createSupabaseFetch(supabaseUrl: string, supabaseKey: string): typeof f
   };
 }
 
-const DEFAULT_SUPABASE_URL = "https://lionurqqysgonxrpzovv.supabase.co";
-const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_a4Y9SoiVOegyPtFzoLG4lw_wcd39ojW";
+const DEFAULT_SUPABASE_URL = "https://bxdibrixivozxipefylz.supabase.co";
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4SSpwpxYs41goOAmkVlzdg_Z4sTOlQ9";
 
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)

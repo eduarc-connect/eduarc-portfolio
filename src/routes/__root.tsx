@@ -100,8 +100,8 @@ const structuredData = {
       description:
         "Career guidance & education support platform for schools, colleges, and students. Structured career roadmaps, verified academic mentorship, and future-ready planning.",
       slogan: "Ambitious to Achievement",
-      email: "partnerships@eduarc.in",
-      telephone: "+91-95357-21089",
+      email: "eduarc.connect@gmail.com",
+      telephone: "+91 95357 21089",
       address: {
         "@type": "PostalAddress",
         addressLocality: "Bengaluru",
@@ -118,7 +118,7 @@ const structuredData = {
       contactPoint: [
         {
           "@type": "ContactPoint",
-          telephone: "+91-95357-21089",
+          telephone: "+91 95357 21089",
           contactType: "student counseling",
           areaServed: "IN",
           availableLanguage: ["English", "Hindi", "Kannada"],

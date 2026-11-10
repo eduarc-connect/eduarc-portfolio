@@ -19,7 +19,7 @@ import sessionGallery4 from "@/assets/programs/session/session-gallery-4.jpg";
 import sessionGallery5 from "@/assets/programs/session/session-gallery-5.jpg";
 
 export const SUPABASE_STORAGE_URL =
-  "https://lionurqqysgonxrpzovv.supabase.co/storage/v1/object/public/programs";
+  "https://bxdibrixivozxipefylz.supabase.co/storage/v1/object/public/programs";
 
 export const supabaseProgramImages = {
   sriVenkateshwara: `${SUPABASE_STORAGE_URL}/program-sri-venkateshwara.jpg`,
