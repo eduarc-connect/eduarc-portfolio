@@ -315,16 +315,24 @@ export function PartnerForm() {
                 id="education"
                 label="Current Education Level"
                 required
+                asGroup
                 error={show("education")}
                 hint="Select the level you are currently enrolled in"
               >
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <div
+                  id="education"
+                  role="radiogroup"
+                  aria-labelledby="education-label"
+                  className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+                >
                   {educationLevels.map((lvl) => {
                     const active = form.education === lvl;
                     return (
                       <button
                         key={lvl}
                         type="button"
+                        role="radio"
+                        aria-checked={active}
                         onClick={() => setField("education")(lvl)}
                         className={cn(
                           "rounded-xl border px-3 py-2 text-xs font-semibold transition-all cursor-pointer text-center",
@@ -369,16 +377,24 @@ export function PartnerForm() {
                 id="childEducation"
                 label="Child's Current Education Level"
                 required
+                asGroup
                 error={show("education")}
                 hint="Select your child's current study stage"
               >
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <div
+                  id="childEducation"
+                  role="radiogroup"
+                  aria-labelledby="childEducation-label"
+                  className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+                >
                   {educationLevels.map((lvl) => {
                     const active = form.education === lvl;
                     return (
                       <button
                         key={lvl}
                         type="button"
+                        role="radio"
+                        aria-checked={active}
                         onClick={() => setField("education")(lvl)}
                         className={cn(
                           "rounded-xl border px-3 py-2 text-xs font-semibold transition-all cursor-pointer text-center",
@@ -782,6 +798,7 @@ function Field({
   optional,
   error,
   hint,
+  asGroup,
   children,
 }: {
   id: string;
@@ -790,6 +807,7 @@ function Field({
   optional?: boolean | undefined;
   error?: string | undefined;
   hint?: string | undefined;
+  asGroup?: boolean | undefined;
   children: ReactNode;
 }) {
   const errId = useId();
@@ -798,10 +816,17 @@ function Field({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <Label htmlFor={id} className="text-xs font-semibold text-brand-navy">
-          {label} {required && <span className="text-destructive">*</span>}
-          {optional && <span className="font-normal text-muted-foreground"> (Optional)</span>}
-        </Label>
+        {asGroup ? (
+          <span id={`${id}-label`} className="text-xs font-semibold text-brand-navy">
+            {label} {required && <span className="text-destructive">*</span>}
+            {optional && <span className="font-normal text-muted-foreground"> (Optional)</span>}
+          </span>
+        ) : (
+          <Label htmlFor={id} className="text-xs font-semibold text-brand-navy">
+            {label} {required && <span className="text-destructive">*</span>}
+            {optional && <span className="font-normal text-muted-foreground"> (Optional)</span>}
+          </Label>
+        )}
       </div>
 
       {children}
