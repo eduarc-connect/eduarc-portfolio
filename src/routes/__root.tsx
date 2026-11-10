@@ -167,6 +167,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "author", content: "EDUARC" },
       { name: "theme-color", content: "#243B35" },
+      { name: "referrer", content: "strict-origin-when-cross-origin" },
       { name: "google-site-verification", content: "googlee87f8b26b8c2d2b8" },
       {
         name: "robots",
