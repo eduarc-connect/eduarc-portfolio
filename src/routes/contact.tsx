@@ -48,6 +48,9 @@ function ContactPage() {
           <img
             src={counselorHeroBg}
             alt="EDUARC Educational Guidance and Counselling"
+            width={6037}
+            height={1963}
+            decoding="async"
             className="h-full w-auto max-w-none absolute right-0 bottom-0 block"
             style={{
               maskImage:
@@ -104,6 +107,9 @@ function ContactPage() {
             <img
               src={counselorHeroBg}
               alt="EDUARC Educational Guidance and Counselling"
+              width={6037}
+              height={1963}
+              decoding="async"
               className="h-full w-full object-cover object-right-bottom block"
               style={{
                 maskImage: "linear-gradient(to right, transparent 0%, black 25%, black 100%)",

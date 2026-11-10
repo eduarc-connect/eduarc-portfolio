@@ -262,6 +262,8 @@ export function TestimonialsContent() {
                             <img
                               src={avatarSrc}
                               alt={t.name}
+                              width={44}
+                              height={44}
                               loading="lazy"
                               className="h-full w-full object-cover"
                               onError={(e) => {
@@ -400,6 +402,9 @@ export function TestimonialsContent() {
                     <img
                       src={successBooksImg}
                       alt="Education and Success"
+                      width={145}
+                      height={95}
+                      loading="lazy"
                       className="max-h-full max-w-full object-contain"
                     />
                   </div>
@@ -531,6 +536,8 @@ export function TestimonialsContent() {
                         : getGoogleMaterialAvatarSvg(modalForm.name || "User", modalForm.email))
                     }
                     alt="Reviewer Avatar Preview"
+                    width={52}
+                    height={52}
                     className="h-full w-full object-cover"
                     onError={(e) => {
                       const img = e.currentTarget;

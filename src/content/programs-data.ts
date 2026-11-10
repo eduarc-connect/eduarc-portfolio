@@ -22,21 +22,21 @@ export const SUPABASE_STORAGE_URL =
   "https://bxdibrixivozxipefylz.supabase.co/storage/v1/object/public/programs";
 
 export const supabaseProgramImages = {
-  sriVenkateshwara: `${SUPABASE_STORAGE_URL}/program-sri-venkateshwara.jpg`,
-  stMarys: `${SUPABASE_STORAGE_URL}/program-st-marys.jpg`,
-  kendriyaVidyalaya: `${SUPABASE_STORAGE_URL}/program-kendriya-vidyalaya.jpg`,
-  davPublic: `${SUPABASE_STORAGE_URL}/program-dav-public.jpg`,
-  psgCollege: `${SUPABASE_STORAGE_URL}/program-psg-college.jpg`,
-  sriChaitanya: `${SUPABASE_STORAGE_URL}/program-sri-chaitanya.jpg`,
-  chinmayaVidyalaya: `${SUPABASE_STORAGE_URL}/program-chinmaya-vidyalaya.jpg`,
-  vitVellore: `${SUPABASE_STORAGE_URL}/program-vit-vellore.jpg`,
-  bishopHeber: `${SUPABASE_STORAGE_URL}/program-bishop-heber.jpg`,
-  sessionHero: `${SUPABASE_STORAGE_URL}/session/session-hero.jpg`,
-  sessionGallery1: `${SUPABASE_STORAGE_URL}/session/session-gallery-1.jpg`,
-  sessionGallery2: `${SUPABASE_STORAGE_URL}/session/session-gallery-2.jpg`,
-  sessionGallery3: `${SUPABASE_STORAGE_URL}/session/session-gallery-3.jpg`,
-  sessionGallery4: `${SUPABASE_STORAGE_URL}/session/session-gallery-4.jpg`,
-  sessionGallery5: `${SUPABASE_STORAGE_URL}/session/session-gallery-5.jpg`,
+  sriVenkateshwara: imgSriVenkateshwara,
+  stMarys: imgStMarys,
+  kendriyaVidyalaya: imgKendriyaVidyalaya,
+  davPublic: imgDavPublic,
+  psgCollege: imgPsgCollege,
+  sriChaitanya: imgSriChaitanya,
+  chinmayaVidyalaya: imgChinmayaVidyalaya,
+  vitVellore: imgVitVellore,
+  bishopHeber: imgBishopHeber,
+  sessionHero: sessionHeroImg,
+  sessionGallery1: sessionGallery1,
+  sessionGallery2: sessionGallery2,
+  sessionGallery3: sessionGallery3,
+  sessionGallery4: sessionGallery4,
+  sessionGallery5: sessionGallery5,
 };
 
 export interface ProgramSessionReview {

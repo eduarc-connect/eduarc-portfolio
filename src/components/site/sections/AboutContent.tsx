@@ -70,6 +70,8 @@ function MentorAvatar({
         <img
           src={mentorGayathriImg}
           alt={name}
+          width={48}
+          height={48}
           className="w-12 h-12 rounded-full object-cover object-top border border-slate-200 shrink-0 shadow-sm"
         />
       );
@@ -85,6 +87,8 @@ function MentorAvatar({
     <img
       src={src}
       alt={name}
+      width={48}
+      height={48}
       className="w-12 h-12 rounded-full object-cover object-top border border-slate-200 shrink-0 shadow-sm"
       onError={() => {
         if (isGayathri && src !== mentorGayathriImg) {
@@ -129,6 +133,8 @@ function BigMentorImage({
         <img
           src={mentorGayathriImg}
           alt={name}
+          width={960}
+          height={960}
           className={cn("w-full h-full object-cover object-top", className)}
         />
       );
@@ -146,6 +152,8 @@ function BigMentorImage({
     <img
       src={src}
       alt={name}
+      width={960}
+      height={960}
       className={cn("w-full h-full object-cover object-top", className)}
       onError={() => {
         if (isGayathri && src !== mentorGayathriImg) {

@@ -58,6 +58,9 @@ function AboutPage() {
           <img
             src={aboutHeroImg}
             alt="Empowering Students to Discover Their Future"
+            width={1024}
+            height={341}
+            decoding="async"
             className="h-full w-auto max-w-none absolute right-0 bottom-0 block"
             style={{
               maskImage:
@@ -96,6 +99,9 @@ function AboutPage() {
             <img
               src={aboutHeroImg}
               alt="Empowering Students to Discover Their Future"
+              width={1024}
+              height={341}
+              decoding="async"
               className="h-full w-full object-cover object-right-bottom block"
               style={{
                 maskImage: "linear-gradient(to right, transparent 0%, black 25%, black 100%)",
@@ -127,10 +133,10 @@ function AboutPage() {
                 <div className="hidden sm:block h-9 w-[1px] bg-[#E2DBD0]" />
 
                 <div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-[#243B35] tracking-tight leading-snug">
+                  <h2 className="text-lg sm:text-xl font-semibold text-[#243B35] tracking-tight leading-snug">
                     Your Future Starts With <br className="hidden sm:inline" />
                     The <span className="text-[#B47A4B]">Right Guidance.</span>
-                  </h3>
+                  </h2>
                 </div>
               </div>
 

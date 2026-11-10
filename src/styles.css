@@ -109,8 +109,8 @@
   --brand-forest-soft: #edf3f0; /* Soft Forest Green tint */
   --brand-ivory: #e8e0d1; /* Secondary: Warm Ivory */
   --brand-ivory-light: #f5f1e8; /* Soft Warm Ivory surface */
-  --brand-terracotta: #b47a4b; /* Accent: Muted Terracotta */
-  --brand-terracotta-hover: #9e673b;
+  --brand-terracotta: #965f33; /* Accent: Muted Terracotta (WCAG AA 5.0:1 contrast) */
+  --brand-terracotta-hover: #7e4f29;
   --brand-terracotta-soft: #f7efe9;
   --brand-charcoal: #343a36; /* Primary Text: Charcoal */
   --brand-offwhite: #faf9f5; /* Main Background: Off White */
@@ -126,19 +126,19 @@
   --border: #e2dbd0;
   --input: #e2dbd0;
   --muted: #f4f0e8;
-  --muted-foreground: #616a64; /* Muted Charcoal */
+  --muted-foreground: #5a635d; /* Muted Charcoal (WCAG AA 5.8:1 contrast) */
 
   --primary: #243b35; /* Forest Green */
   --primary-foreground: #faf9f5; /* Off White */
   --secondary: #e8e0d1; /* Warm Ivory */
   --secondary-foreground: #243b35; /* Forest Green */
-  --accent: #b47a4b; /* Muted Terracotta */
+  --accent: #965f33; /* Muted Terracotta */
   --accent-foreground: #faf9f5;
   --destructive: #a33333;
   --destructive-foreground: #faf9f5;
   --success: #243b35;
   --success-soft: #eff4ee;
-  --warning: #b47a4b;
+  --warning: #965f33;
   --warning-soft: #f7efe9;
   --ring: #243b35;
 
@@ -146,8 +146,8 @@
   --brand: #243b35;
   --brand-navy: #243b35; /* Mapped to Forest Green */
   --brand-navy-deep: #1a2c27;
-  --brand-gold: #b47a4b; /* Mapped to Muted Terracotta */
-  --brand-gold-hover: #9e673b;
+  --brand-gold: #965f33; /* Mapped to Muted Terracotta */
+  --brand-gold-hover: #7e4f29;
   --brand-gold-soft: #f5f1e8; /* Warm Ivory */
   --brand-gold-border: #e2dbd0;
   --brand-teal: #9aab94; /* Sage Green */

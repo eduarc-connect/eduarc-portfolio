@@ -53,6 +53,9 @@ function FeaturesPage() {
           <img
             src={featuresHeroImg}
             alt="EDUARC Institutional Students Learning Together"
+            width={2360}
+            height={768}
+            decoding="async"
             className="h-full w-auto max-w-none absolute right-0 bottom-0 block"
             style={{
               maskImage:
@@ -107,6 +110,9 @@ function FeaturesPage() {
             <img
               src={featuresHeroImg}
               alt="EDUARC Institutional Students Learning Together"
+              width={2360}
+              height={768}
+              decoding="async"
               className="h-full w-full object-cover object-right-bottom block"
               style={{
                 maskImage: "linear-gradient(to right, transparent 0%, black 25%, black 100%)",

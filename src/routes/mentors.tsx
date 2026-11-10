@@ -118,6 +118,9 @@ function MentorCardImage({
         <img
           src={mentorImg}
           alt={name}
+          width={960}
+          height={960}
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
         />
       );
@@ -133,6 +136,9 @@ function MentorCardImage({
     <img
       src={src}
       alt={name}
+      width={960}
+      height={960}
+      decoding="async"
       className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
       onError={() => {
         if (isGayathri && src !== mentorImg) {
@@ -175,6 +181,9 @@ function MentorModalImage({
         <img
           src={mentorImg}
           alt={name}
+          width={112}
+          height={112}
+          decoding="async"
           className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl object-cover object-top shadow-md border-2 border-brand-gold/40"
         />
       );
@@ -190,6 +199,9 @@ function MentorModalImage({
     <img
       src={src}
       alt={name}
+      width={112}
+      height={112}
+      decoding="async"
       className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl object-cover object-top shadow-md border-2 border-brand-gold/40"
       onError={() => {
         if (isGayathri && src !== mentorImg) {
