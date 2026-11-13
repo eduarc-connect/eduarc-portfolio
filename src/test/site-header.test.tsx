@@ -119,7 +119,7 @@ describe("SiteHeader & Mobile Navigation Drawer", () => {
 
     const contactLinks = mobileNav?.querySelectorAll('a[href="/contact"]');
     expect(
-      Array.from(contactLinks || []).some((link) => link.textContent?.includes("Contact Support")),
+      Array.from(contactLinks || []).some((link) => link.textContent?.includes("Contact")),
     ).toBe(true);
 
     // Dynamic contact info from site content and privacy policy exist

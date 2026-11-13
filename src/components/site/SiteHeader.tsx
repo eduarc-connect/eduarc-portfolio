@@ -12,7 +12,6 @@ import {
   MessageSquareQuote,
   Phone,
   Handshake,
-  Headphones,
   PhoneCall,
   Mail,
   ShieldCheck,
@@ -239,40 +238,6 @@ export function SiteHeader() {
                     )}
                   >
                     <Handshake className="h-4.5 w-4.5" strokeWidth={1.75} />
-                  </div>
-                </Link>
-
-                {/* Contact Support */}
-                <Link
-                  to="/contact"
-                  onClick={(e) => handleItemClick(e, "/contact-support")}
-                  onMouseEnter={() => setRevealedItem("/contact-support")}
-                  onMouseLeave={() => setRevealedItem(null)}
-                  onFocus={() => setRevealedItem("/contact-support")}
-                  onBlur={() => setRevealedItem(null)}
-                  aria-label="Contact Support"
-                  className="relative group flex items-center justify-center cursor-pointer select-none"
-                >
-                  <div
-                    className={cn(
-                      "absolute right-[48px] sm:right-[52px] top-1/2 -translate-y-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#172621]/95 text-white backdrop-blur-xl shadow-[0_8px_20px_rgba(0,0,0,0.22)] border border-white/10 text-xs font-medium tracking-wide whitespace-nowrap transition-all duration-200 ease-out",
-                      revealedItem === "/contact-support"
-                        ? "opacity-100 translate-x-0 scale-100 pointer-events-auto"
-                        : "opacity-0 translate-x-2 scale-95 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 group-hover:scale-100 group-hover:pointer-events-auto",
-                    )}
-                  >
-                    <span>Contact Support</span>
-                    <ArrowUpRight className="h-3 w-3 text-[#d4a373] shrink-0" />
-                  </div>
-                  <div
-                    className={cn(
-                      "w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200",
-                      revealedItem === "/contact-support"
-                        ? "bg-[#172621] text-white shadow-xs scale-105"
-                        : "text-foreground/75 hover:text-foreground hover:bg-black/5 active:scale-95",
-                    )}
-                  >
-                    <Headphones className="h-4.5 w-4.5" strokeWidth={1.75} />
                   </div>
                 </Link>
               </div>
