@@ -165,7 +165,7 @@ describe("SiteHeader & Mobile Navigation Drawer", () => {
     expect(document.body.style.overflow).toBe("");
   });
 
-  it("closes the mobile drawer when clicking any link inside it", () => {
+  it("reveals page name on hover/first tap and opens page when clicked while revealed", () => {
     render(<SiteHeader />);
     const toggleBtn = screen.getByRole("button", { name: /open navigation menu/i });
 
@@ -174,12 +174,36 @@ describe("SiteHeader & Mobile Navigation Drawer", () => {
     const mobileNav = document.getElementById("mobile-nav");
     expect(mobileNav).not.toBeNull();
 
-    // Click "Mentors" link
+    // Find "Mentors" link
     const mentorsLink = mobileNav?.querySelector('a[href="/mentors"]');
     expect(mentorsLink).not.toBeNull();
-    fireEvent.click(mentorsLink!);
 
-    // Drawer closes
+    // First click on unrevealed link: reveals page name without closing drawer
+    fireEvent.click(mentorsLink!);
+    expect(document.getElementById("mobile-nav")).not.toBeNull();
+
+    // Second click on the revealed link: opens page and closes drawer
+    fireEvent.click(mentorsLink!);
+    expect(document.getElementById("mobile-nav")).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("closes the mobile drawer when hovering and then clicking a link", () => {
+    render(<SiteHeader />);
+    const toggleBtn = screen.getByRole("button", { name: /open navigation menu/i });
+
+    // Open
+    fireEvent.click(toggleBtn);
+    const mobileNav = document.getElementById("mobile-nav");
+    expect(mobileNav).not.toBeNull();
+
+    // Mouse over "About" link reveals page name
+    const aboutLink = mobileNav?.querySelector('a[href="/about"]');
+    expect(aboutLink).not.toBeNull();
+    fireEvent.mouseEnter(aboutLink!);
+
+    // Click while hovered opens page and closes drawer
+    fireEvent.click(aboutLink!);
     expect(document.getElementById("mobile-nav")).toBeNull();
     expect(document.body.style.overflow).toBe("");
   });
