@@ -6,6 +6,8 @@ import { BrandLogo } from "./BrandLogo";
 import { MagneticDockNav } from "./MagneticDockNav";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useSiteContent } from "@/lib/site-content";
+import { phoneHref } from "@/content/eduarc";
 
 export const navItems = [
   { to: "/about", label: "About" },
@@ -21,6 +23,7 @@ export function SiteHeader() {
   const [mounted, setMounted] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const menuRef = useRef<HTMLDivElement>(null);
+  const { contact } = useSiteContent();
 
   useEffect(() => {
     setMounted(true);
@@ -164,19 +167,19 @@ export function SiteHeader() {
                 <div className="flex items-center justify-between">
                   <span>Helpline:</span>
                   <a
-                    href="tel:+919901436625"
+                    href={phoneHref(contact.phone)}
                     className="font-semibold text-primary hover:underline"
                   >
-                    +91 99014 36625
+                    {contact.phone}
                   </a>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Email:</span>
                   <a
-                    href="mailto:connect@eduarc.in"
+                    href={`mailto:${contact.email}`}
                     className="font-semibold text-accent hover:underline"
                   >
-                    connect@eduarc.in
+                    {contact.email}
                   </a>
                 </div>
                 <div className="pt-2 text-center border-t border-hairline/60">

@@ -32,6 +32,18 @@ vi.mock("@tanstack/react-router", () => ({
   useRouterState: vi.fn(() => "/"),
 }));
 
+const mockSiteContent = {
+  contact: {
+    phone: "+91 95357 21089",
+    email: "eduarc.connect@gmail.com",
+    website: "www.eduarc-connect.in",
+  },
+};
+
+vi.mock("@/lib/site-content", () => ({
+  useSiteContent: () => mockSiteContent,
+}));
+
 describe("SiteHeader & Mobile Navigation Drawer", () => {
   beforeEach(() => {
     document.body.style.overflow = "";
@@ -110,9 +122,13 @@ describe("SiteHeader & Mobile Navigation Drawer", () => {
       Array.from(contactLinks || []).some((link) => link.textContent?.includes("Contact Support")),
     ).toBe(true);
 
-    // Contact info and privacy policy exist
-    expect(mobileNav?.textContent).toContain("+91 99014 36625");
-    expect(mobileNav?.textContent).toContain("connect@eduarc.in");
+    // Dynamic contact info from site content and privacy policy exist
+    expect(mobileNav?.textContent).toContain("+91 95357 21089");
+    expect(mobileNav?.textContent).toContain("eduarc.connect@gmail.com");
+    const helplineLink = mobileNav?.querySelector('a[href="tel:+919535721089"]');
+    expect(helplineLink).not.toBeNull();
+    const emailLink = mobileNav?.querySelector('a[href="mailto:eduarc.connect@gmail.com"]');
+    expect(emailLink).not.toBeNull();
     const privacyLink = mobileNav?.querySelector('a[href="/privacy-policy"]');
     expect(privacyLink).not.toBeNull();
   });
